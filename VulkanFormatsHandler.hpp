@@ -2,8 +2,8 @@
 
 #include <type_traits>
 #include "vulkan/vulkan.hpp"
-#include "Vect.hpp"
-#include "IteratorUtil.hpp"
+#include "util/Vect.hpp"
+#include "util/IteratorUtil.hpp"
 
 struct FormatGroup
 {
