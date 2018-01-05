@@ -233,19 +233,16 @@ namespace magma
     std::vector<vk::AttachmentDescription> attachements;
     std::vector<vk::SubpassDescription> subPasses;
     std::vector<vk::SubpassDependency> subPassDependencies;
+    vk::RenderPassCreateFlags flags;
 
     operator vk::RenderPassCreateInfo() const
     {
-      return
-	{
-	  {},
-	    static_cast<uint32_t>(attachements.size()),
-	      attachements.data(),
-	      static_cast<uint32_t>(subPasses.size()),
-	      subPasses.data(),
-	      static_cast<uint32_t>(subPassDependencies.size()),
-	      subPassDependencies.data()
-	      };
+      return {
+	  flags,
+	  static_cast<uint32_t>(attachements.size()), attachements.data(),
+	  static_cast<uint32_t>(subPasses.size()), subPasses.data(),
+	  static_cast<uint32_t>(subPassDependencies.size()), subPassDependencies.data()
+	};
     }
 
     RenderPassCreateInfo() = default;
@@ -256,18 +253,16 @@ namespace magma
   
   class Device : private vk::Device
   {
-
   public:
     Device(vk::PhysicalDevice physicalDevice, std::vector<vk::DeviceQueueCreateInfo> const &deviceQueueCreateInfos, std::vector<char const *> const &extensions = {})
       : vk::Device([](vk::PhysicalDevice physicalDevice, std::vector<vk::DeviceQueueCreateInfo> const &deviceQueueCreateInfos, std::vector<char const *> const &extensions)
 		   {
-		     vk::DeviceCreateInfo deviceCreateInfo
-		     {
+		     vk::DeviceCreateInfo deviceCreateInfo {
 		       {},
-			 static_cast<unsigned>(deviceQueueCreateInfos.size()), deviceQueueCreateInfos.data(),
-			   0, nullptr,
-			   static_cast<unsigned>(extensions.size()), extensions.data()
-			   };
+		       static_cast<unsigned>(deviceQueueCreateInfos.size()), deviceQueueCreateInfos.data(),
+		       0, nullptr,
+		       static_cast<unsigned>(extensions.size()), extensions.data()
+		     };
 		   
 		     return physicalDevice.createDevice(deviceCreateInfo);
 		   }(physicalDevice, deviceQueueCreateInfos, extensions))
