@@ -3,6 +3,7 @@
 #include <array>
 #include <vector>
 #include <unordered_map>
+#include <set>
 #include "vulkan/vulkan.hpp"
 
 namespace magma
@@ -138,8 +139,50 @@ namespace magma
     }
   };
 
-  class Device : private vk::Device
+  class RenderPass : public vk::RenderPass
   {
+    vk::Device device;
+
+  public:
+    RenderPass(vk::RenderPass renderPass, vk::Device device)
+      : vk::RenderPass(renderPass)
+      , device(device)
+    {
+    }
+
+    RenderPass(RenderPass const &) = delete;
+    RenderPass(RenderPass &&) = default;
+
+    ~RenderPass()
+    {
+      device.destroyRenderPass(*this);
+    }
+  };
+
+  class CommandPool : public vk::CommandPool
+  {
+    vk::Device device;
+
+  public:
+    CommandPool(vk::CommandPool commandBuffer, vk::Device device)
+      : vk::CommandPool(commandBuffer)
+      , device(device)
+    {
+    }
+
+    CommandPool(CommandPool const &) = delete;
+    CommandPool(CommandPool &&) = default;
+    
+    ~CommandPool()
+    {
+      device.destroyCommandPool(*this);
+    }
+
+    void reset(vk::CommandPoolResetFlags flags)
+    {
+      device.resetCommandPool(*this, flags);
+    }
+
     // class CommandBufferGroup
     // {
     //   Device &device;
@@ -149,7 +192,7 @@ namespace magma
     //   class CommandBuffer
     //   {
     // 	Device &device;
-    // 	uint32_t queueFamilyIndex;
+    //  uint32_t queueFamilyIndex;
     // 	vk::CommandBuffer commandBuffer;
 
     //   public:
@@ -173,17 +216,46 @@ namespace magma
 
     //   auto operator[](std::size_t index)
     //   {
-    // 	return CommandBuffer(device, queueFamilyIndex, commandBuffers[index]);
+    // 	   return CommandBuffer(device, queueFamilyIndex, commandBuffers[index]);
     //   }
     // };
-  
-    // class QueueFamilyData
-    // {
-    //   std::vector<vk::CommandPool commandPool> commandPools;
-    // };
 
-    // std::unordered_map<uint32_t, QueueFamilyData> queueFamilies;
-    std::vector<std::pair<vk::CommandPool, uint32_t>> commandBufferPools;
+    // auto allocateCommandBuffers(vk::CommandBufferLevel level, uint32_t commandBufferCount)
+    // {      
+    //   vk::CommandBufferAllocateInfo info{*this, level, commandBufferCount};
+
+    //   return CommandBufferGroup(device, device.allocateCommandBuffers(info);
+    // }
+  };
+
+  struct RenderPassCreateInfo
+  {
+    std::vector<vk::AttachmentDescription> attachements;
+    std::vector<vk::SubpassDescription> subPasses;
+    std::vector<vk::SubpassDependency> subPassDependencies;
+
+    operator vk::RenderPassCreateInfo() const
+    {
+      return
+	{
+	  {},
+	    static_cast<uint32_t>(attachements.size()),
+	      attachements.data(),
+	      static_cast<uint32_t>(subPasses.size()),
+	      subPasses.data(),
+	      static_cast<uint32_t>(subPassDependencies.size()),
+	      subPassDependencies.data()
+	      };
+    }
+
+    RenderPassCreateInfo() = default;
+    RenderPassCreateInfo(RenderPassCreateInfo const &) = delete;
+    RenderPassCreateInfo(RenderPassCreateInfo &&) = default;
+    ~RenderPassCreateInfo() = default;
+  };
+  
+  class Device : private vk::Device
+  {
 
   public:
     Device(vk::PhysicalDevice physicalDevice, std::vector<vk::DeviceQueueCreateInfo> const &deviceQueueCreateInfos, std::vector<char const *> const &extensions = {})
@@ -200,10 +272,6 @@ namespace magma
 		     return physicalDevice.createDevice(deviceCreateInfo);
 		   }(physicalDevice, deviceQueueCreateInfos, extensions))
     {
-      // for (vk::DeviceQueueCreateInfo const &deviceQueueCreateInfo : deviceQueueCreateInfos)
-      // 	{
-      // 	  queueFamilies[deviceQueueCreateInfo.queueFamilyIndex];
-      // 	}
     }
 
     ~Device()
@@ -211,30 +279,21 @@ namespace magma
       destroy();
     }
 
-    // auto createBufferPool(vk::CommandPoolCreateFlags flags, uint32_t queueFamilyIndex)
-    // {
-    //   vk::CommandPoolCreateInfo createInfo{
-    // 	flags,
-    // 	  queueFamilyIndex
-    // 	  };
+    auto createRenderPass(RenderPassCreateInfo const &renderPassCreateInfo)
+    {
+      return RenderPass(vk::Device::createRenderPass(renderPassCreateInfo), *this);
+    }
 
-    //   commandBufferPools.emplace_back(createCommandPool(createInfo), queueFamilyIndex);
-    //   return commandBufferPools.size() - 1;
-    // }
+    auto createCommandPool(vk::CommandPoolCreateFlags flags, uint32_t queueFamilyIndex)
+    {
+      vk::CommandPoolCreateInfo createInfo{flags, queueFamilyIndex};
 
-    // auto createCommandBufferGroup(vk::CommandBufferLevel level, uint32_t count, std::size_t poolId)
-    // {
-    //   vk::CommandBufferAllocateInfo allocateInfo{
-    // 	commandBufferPools[poolId].first, level, count
-    // 	  };
-
-    //   return CommandBufferGroup(*this, commandBufferPools[poolId].second, std::move(allocateCommandBuffers(allocateInfo)));
-    // }
+      return vk::Device::createCommandPool(createInfo);
+    }
 
     using vk::Device::createSwapchainKHR;
     using vk::Device::acquireNextImageKHR;
     using vk::Device::destroySwapchainKHR;
-
   };
 
 };
