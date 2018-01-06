@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <set>
 #include "vulkan/vulkan.hpp"
+#include "magma/CommandBuffers.hpp"
 
 namespace magma
 {
@@ -159,75 +160,6 @@ namespace magma
     }
   };
 
-  class CommandPool : public vk::CommandPool
-  {
-    vk::Device device;
-
-  public:
-    CommandPool(vk::CommandPool commandBuffer, vk::Device device)
-      : vk::CommandPool(commandBuffer)
-      , device(device)
-    {
-    }
-
-    CommandPool(CommandPool const &) = delete;
-    CommandPool(CommandPool &&) = default;
-    
-    ~CommandPool()
-    {
-      device.destroyCommandPool(*this);
-    }
-
-    void reset(vk::CommandPoolResetFlags flags)
-    {
-      device.resetCommandPool(*this, flags);
-    }
-
-    // class CommandBufferGroup
-    // {
-    //   Device &device;
-    //   uint32_t queueFamilyIndex;
-    //   std::vector<vk::CommandBuffer> commandBuffers;
-
-    //   class CommandBuffer
-    //   {
-    // 	Device &device;
-    //  uint32_t queueFamilyIndex;
-    // 	vk::CommandBuffer commandBuffer;
-
-    //   public:
-    // 	CommandBuffer(Device &device,
-    // 		      uint32_t queueFamilyIndex,
-    // 		      vk::CommandBuffer commandBuffer)
-    // 	  : device(device)
-    // 	  , queueFamilyIndex(queueFamilyIndex)
-    // 	  , commandBuffer(commandBuffer)
-    // 	{
-    // 	}
-    //   };
-
-    // public:
-    //   CommandBufferGroup(Device device, uint32_t queueFamilyIndex, std::vector<vk::CommandBuffer> commandBuffers)
-    // 	: device(device)
-    // 	, queueFamilyIndex(queueFamilyIndex)
-    // 	, commandBuffers(std::move(commandBuffers))
-    //   {
-    //   }
-
-    //   auto operator[](std::size_t index)
-    //   {
-    // 	   return CommandBuffer(device, queueFamilyIndex, commandBuffers[index]);
-    //   }
-    // };
-
-    // auto allocateCommandBuffers(vk::CommandBufferLevel level, uint32_t commandBufferCount)
-    // {      
-    //   vk::CommandBufferAllocateInfo info{*this, level, commandBufferCount};
-
-    //   return CommandBufferGroup(device, device.allocateCommandBuffers(info);
-    // }
-  };
-
   struct RenderPassCreateInfo
   {
     std::vector<vk::AttachmentDescription> attachements;
@@ -283,7 +215,7 @@ namespace magma
     {
       vk::CommandPoolCreateInfo createInfo{flags, queueFamilyIndex};
 
-      return vk::Device::createCommandPool(createInfo);
+      return CommandPool{*this, queueFamilyIndex, vk::Device::createCommandPool(createInfo)};
     }
 
     using vk::Device::createSwapchainKHR;
