@@ -121,6 +121,15 @@ namespace magma
       return CommandBufferGroup<SecondaryCommandBuffer>{{device, *this, queueFamilyIndex}, device.allocateCommandBuffers(info)};
     }
 
+    void swap(CommandPoolImpl &other)
+    {
+      using std::swap;
+
+      swap(static_cast<vk::CommandPool &>(*this), static_cast<vk::CommandPool &>(other));
+      swap(device, other.device);
+      swap(queueFamilyIndex, other.queueFamilyIndex);
+    }
+
     struct CommandPoolDeleter
     {
       friend CommandPoolImpl;
@@ -132,6 +141,11 @@ namespace magma
       }
     };
   };
+
+  void swap(CommandPoolImpl &lh, CommandPoolImpl &rh)
+  {
+    lh.swap(rh);
+  }
 
   template<class Deleter = CommandPoolImpl::CommandPoolDeleter>
   using CommandPool = Handle<CommandPoolImpl, Deleter>;
