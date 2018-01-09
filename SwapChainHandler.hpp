@@ -10,19 +10,25 @@ namespace magma
   class Surface
   {
   public:
-    /// TODO: fix imperfection :( -- later, is this an imprefection?
-    Instance &instance;
+    vk::Instance instance;
     vk::SurfaceKHR vkSurface;
 
+    Surface()
+      : instance(nullptr)
+      , vkSurface(nullptr)
+    {
+    }
+
     Surface(Instance &instance, vk::SurfaceKHR vkSurface)
-      : instance(instance)
+      : instance(instance.vkInstance)
       , vkSurface(vkSurface)
     {
     }
 
     ~Surface()
     {
-      instance.vkInstance.destroySurfaceKHR(vkSurface);
+      if (instance)
+	instance.destroySurfaceKHR(vkSurface);
     }
 
     bool isQueueFamilySuitable(vk::PhysicalDevice physicalDevice, uint32_t queueIndex)
@@ -31,14 +37,17 @@ namespace magma
     }
   };
 
-  class SwapChain
+  class SwapchainImpl
   {
+  protected:
+    Device<NoDelete> device;
+    ~SwapchainImpl() = default;
+
   public:
-    Device &device;
     vk::SwapchainKHR vkSwapchain;
 
     template<class CONTAINER>
-    static auto chooseImageFormat(Surface &surface, vk::PhysicalDevice physicalDevice, CONTAINER &&formatChoices)
+    static auto chooseImageFormat(Surface const &surface, vk::PhysicalDevice physicalDevice, CONTAINER &&formatChoices)
     {
       auto formats(physicalDevice.getSurfaceFormatsKHR(surface.vkSurface));
 
@@ -64,8 +73,14 @@ namespace magma
 			   });
     }
 
+    SwapchainImpl()
+      : device(nullptr)
+      , vkSwapchain(nullptr)
+    {
+    }
+
     // TODO: refactor the fuck out of this.
-    SwapChain(Surface &surface, Device &device, vk::PhysicalDevice physicalDevice)
+    SwapchainImpl(Surface const &surface, Device<NoDelete> device, vk::PhysicalDevice physicalDevice)
       : device(device)
     {
       constexpr auto preferedFormatRanking =
@@ -73,6 +88,7 @@ namespace magma
 	  ((vulkanFormatGroups::R8G8B8 | vulkanFormatGroups::B8G8R8) & vulkanFormatGroups::Srgb),
 	  ((vulkanFormatGroups::R8G8B8A8 | vulkanFormatGroups::B8G8R8A8) & vulkanFormatGroups::Srgb),
 	  (vulkanFormatGroups::R8G8B8A8 | vulkanFormatGroups::B8G8R8A8 | vulkanFormatGroups::R8G8B8A8 | vulkanFormatGroups::B8G8R8A8)
+
 	};
       auto format(chooseImageFormat(surface, physicalDevice, preferedFormatRanking));      
       auto capabilities(physicalDevice.getSurfaceCapabilitiesKHR(surface.vkSurface));
@@ -100,7 +116,7 @@ namespace magma
 					    (capabilities.currentExtent == vk::Extent2D{0xFFFFFFFFu, 0xFFFFFFFFu} ? capabilities.maxImageExtent : capabilities.currentExtent), // choose current or biggest extent possible
 					    1,
 					    vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eColorAttachment,
-					    vk::SharingMode::eExclusive, // nest 2 params unused because eExclusive
+					    vk::SharingMode::eExclusive, // next 2 params unused because eExclusive
 					    0, // unused
 					    nullptr, // unused
 					    capabilities.currentTransform,
@@ -117,9 +133,31 @@ namespace magma
       return device.acquireNextImageKHR(vkSwapchain, 20, sem, fence);
     }
 
-    ~SwapChain()
+    void swap(SwapchainImpl &other)
     {
-      device.destroySwapchainKHR(vkSwapchain);
+      using std::swap;
+
+      swap(device, other.device);
+      swap(vkSwapchain, other.vkSwapchain);
     }
+
+    struct SwapchainDeleter
+    {
+      friend class SwapchainImpl;
+
+      void operator()(SwapchainImpl const &swapchain)
+      {
+	if (swapchain.vkSwapchain)
+	  swapchain.device.destroySwapchainKHR(swapchain.vkSwapchain);
+      }
+    };
   };
+
+  void swap(SwapchainImpl &lh, SwapchainImpl &rh)
+  {
+    lh.swap(rh);
+  }
+
+  template<class Deleter = SwapchainImpl::SwapchainDeleter>
+  using Swapchain = Handle<SwapchainImpl, Deleter>;
 };

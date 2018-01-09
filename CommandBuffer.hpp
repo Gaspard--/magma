@@ -2,6 +2,7 @@
 
 #include "util/ContextfulContainer.hpp"
 #include "vulkan/vulkan.hpp"
+#include "magma/Device.hpp"
 
 namespace magma
 {
@@ -63,7 +64,7 @@ namespace magma
 	       vk::CommandBufferInheritanceInfo const &pInheritanceInfo)
     {
       commandBuffer.begin(vk::CommandBufferBeginInfo{flags, &pInheritanceInfo});
-    }    
+    }
   };
 
   class PrimaryCommandBuffer : public CommandBuffer
@@ -79,24 +80,26 @@ namespace magma
     }
   };
 
-  class CommandPool : public vk::CommandPool
+  class CommandPoolImpl : public vk::CommandPool
   {
-    vk::Device device;
+  protected:
+    Device<NoDelete> device;
     uint32_t queueFamilyIndex;
+
+    ~CommandPoolImpl() = default;
   public:
-    CommandPool(vk::Device device, uint32_t queueFamilyIndex, vk::CommandPool commandBuffer)
-      : vk::CommandPool(commandBuffer)
-      , device(device)
-      , queueFamilyIndex(queueFamilyIndex)
+    CommandPoolImpl()
+      : vk::CommandPool(nullptr)
+      , device(nullptr)
+      , queueFamilyIndex(0)
     {
     }
 
-    CommandPool(CommandPool const &) = delete;
-    CommandPool(CommandPool &&) = default;
-    
-    ~CommandPool()
+    CommandPoolImpl(Device<NoDelete> device, uint32_t queueFamilyIndex, vk::CommandPool commandPool)
+      : vk::CommandPool(commandPool)
+      , device(device)
+      , queueFamilyIndex(queueFamilyIndex)
     {
-      device.destroyCommandPool(*this);
     }
 
     void reset(vk::CommandPoolResetFlags flags)
@@ -117,5 +120,26 @@ namespace magma
 
       return CommandBufferGroup<SecondaryCommandBuffer>{{device, *this, queueFamilyIndex}, device.allocateCommandBuffers(info)};
     }
+
+    struct CommandPoolDeleter
+    {
+      friend CommandPoolImpl;
+
+      void operator()(CommandPoolImpl const &commandPool)
+      {
+	if (commandPool)
+	  commandPool.device.destroyCommandPool(commandPool);
+      }
+    };
   };
+
+  template<class Deleter = CommandPoolImpl::CommandPoolDeleter>
+  using CommandPool = Handle<CommandPoolImpl, Deleter>;
+
+  auto DeviceImpl::createCommandPool(vk::CommandPoolCreateFlags flags, uint32_t queueFamilyIndex)
+  {
+    vk::CommandPoolCreateInfo createInfo{flags, queueFamilyIndex};
+
+    return CommandPool<>{magma::Device<NoDelete>(*this), queueFamilyIndex, vk::Device::createCommandPool(createInfo)};
+  }
 };

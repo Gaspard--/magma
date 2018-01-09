@@ -5,7 +5,6 @@
 #include <unordered_map>
 #include <set>
 #include "vulkan/vulkan.hpp"
-#include "magma/CommandBuffers.hpp"
 
 namespace magma
 {
@@ -139,88 +138,4 @@ namespace magma
       vkInstance.destroy();
     }
   };
-
-  class RenderPass : public vk::RenderPass
-  {
-    vk::Device device;
-
-  public:
-    RenderPass(vk::RenderPass renderPass, vk::Device device)
-      : vk::RenderPass(renderPass)
-      , device(device)
-    {
-    }
-
-    RenderPass(RenderPass const &) = delete;
-    RenderPass(RenderPass &&) = default;
-
-    ~RenderPass()
-    {
-      device.destroyRenderPass(*this);
-    }
-  };
-
-  struct RenderPassCreateInfo
-  {
-    std::vector<vk::AttachmentDescription> attachements;
-    std::vector<vk::SubpassDescription> subPasses;
-    std::vector<vk::SubpassDependency> subPassDependencies;
-    vk::RenderPassCreateFlags flags;
-
-    operator vk::RenderPassCreateInfo() const
-    {
-      return {
-	  flags,
-	  static_cast<uint32_t>(attachements.size()), attachements.data(),
-	  static_cast<uint32_t>(subPasses.size()), subPasses.data(),
-	  static_cast<uint32_t>(subPassDependencies.size()), subPassDependencies.data()
-	};
-    }
-
-    RenderPassCreateInfo() = default;
-    RenderPassCreateInfo(RenderPassCreateInfo const &) = delete;
-    RenderPassCreateInfo(RenderPassCreateInfo &&) = default;
-    ~RenderPassCreateInfo() = default;
-  };
-  
-  class Device : private vk::Device
-  {
-  public:
-    Device(vk::PhysicalDevice physicalDevice, std::vector<vk::DeviceQueueCreateInfo> const &deviceQueueCreateInfos, std::vector<char const *> const &extensions = {})
-      : vk::Device([](vk::PhysicalDevice physicalDevice, std::vector<vk::DeviceQueueCreateInfo> const &deviceQueueCreateInfos, std::vector<char const *> const &extensions)
-		   {
-		     vk::DeviceCreateInfo deviceCreateInfo {
-		       {},
-		       static_cast<unsigned>(deviceQueueCreateInfos.size()), deviceQueueCreateInfos.data(),
-		       0, nullptr,
-		       static_cast<unsigned>(extensions.size()), extensions.data()
-		     };
-		   
-		     return physicalDevice.createDevice(deviceCreateInfo);
-		   }(physicalDevice, deviceQueueCreateInfos, extensions))
-    {
-    }
-
-    ~Device()
-    {
-      destroy();
-    }
-
-    auto createRenderPass(RenderPassCreateInfo const &renderPassCreateInfo)
-    {
-      return RenderPass(vk::Device::createRenderPass(renderPassCreateInfo), *this);
-    }
-
-    auto createCommandPool(vk::CommandPoolCreateFlags flags, uint32_t queueFamilyIndex)
-    {
-      vk::CommandPoolCreateInfo createInfo{flags, queueFamilyIndex};
-
-      return CommandPool{*this, queueFamilyIndex, vk::Device::createCommandPool(createInfo)};
-    }
-
-    using vk::Device::createSwapchainKHR;
-    using vk::Device::acquireNextImageKHR;
-    using vk::Device::destroySwapchainKHR;
-  };
-
 };
