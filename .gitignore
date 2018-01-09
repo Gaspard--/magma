@@ -1,6 +1,6 @@
-# Prerequisites
-*.d
-
+Session.vim
+.ycm_extra_conf.py
+.*.swp
 # Compiled Object files
 *.slo
 *.lo
@@ -30,3 +30,13 @@
 *.exe
 *.out
 *.app
+wasted_prophecies
+
+# emacs backup files
+*~
+
+# build directory
+build/
+
+# submodules
+# include/magma
