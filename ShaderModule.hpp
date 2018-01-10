@@ -33,7 +33,7 @@ namespace magma
 
     template<class Container>
     ShaderModuleImpl(Device<NoDelete> device, Container const &code)
-      : vk::ShaderModule(device.createShaderModule(vk::ShaderModuleCreateInfo{{}, code.size(), code.data()}))
+      : vk::ShaderModule(device.createShaderModule(vk::ShaderModuleCreateInfo{{}, code.size() * sizeof(uint32_t), code.data()}))
       , device(device)
     {
     }
