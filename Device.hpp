@@ -5,8 +5,6 @@
 
 namespace magma
 {
-  class RenderPassCreateInfo;
-  
   class DeviceImpl : public vk::Device
   {
   protected:
@@ -54,7 +52,7 @@ namespace magma
     {
       friend class DeviceImpl;
 
-      void operator()(vk::Device const &device)
+      void operator()(vk::Device const &device) const
       {
 	if (device)
 	  device.destroy();

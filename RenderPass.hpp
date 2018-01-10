@@ -51,6 +51,16 @@ namespace magma
     {
     }
 
+    auto getRenderAreaGranularity()
+    {
+      return device.getRenderAreaGranularity(*this);
+    }
+
+    auto raw() const
+    {
+      return static_cast<vk::RenderPass>(*this);
+    }
+
     void swap(RenderPassImpl &other)
     {
       using std::swap;

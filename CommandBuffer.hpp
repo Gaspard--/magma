@@ -3,6 +3,8 @@
 #include "util/ContextfulContainer.hpp"
 #include "vulkan/vulkan.hpp"
 #include "magma/Device.hpp"
+#include "magma/Framebuffer.hpp"
+#include "magma/RenderPass.hpp"
 
 namespace magma
 {
@@ -67,6 +69,50 @@ namespace magma
     }
   };
 
+  class PrimaryCommandBuffer;
+  
+  struct RenderPassExecLock
+  {
+  protected:
+    vk::CommandBuffer commandBuffer;
+
+    friend class PrimaryCommandBuffer;
+
+    RenderPassExecLock(vk::CommandBuffer commandBuffer)
+      : commandBuffer(commandBuffer)
+    {}
+  public:
+    RenderPassExecLock()
+      : commandBuffer(nullptr)
+    {}
+
+    RenderPassExecLock(RenderPassExecLock const &) = delete;
+
+    RenderPassExecLock(RenderPassExecLock &&other)
+      : commandBuffer(other.commandBuffer)
+    {
+      other.commandBuffer = nullptr;
+    }
+
+    auto &operator=(RenderPassExecLock other)
+    {
+      using std::swap;
+
+      swap(commandBuffer, other.commandBuffer);
+      return *this;
+    }
+
+    void next(vk::SubpassContents contents)
+    {
+      commandBuffer.nextSubpass(contents);
+    }
+
+    ~RenderPassExecLock()
+    {
+      commandBuffer.endRenderPass();
+    }
+  };
+
   class PrimaryCommandBuffer : public CommandBuffer
   {
     void begin(vk::CommandBufferUsageFlags flags)
@@ -77,6 +123,13 @@ namespace magma
     void execBuffers(CommandBufferGroup<SecondaryCommandBuffer> &secondaryCommands)
     {
       commandBuffer.executeCommands(secondaryCommands.container);
+    }
+
+    auto beginRenderPass(RenderPass<NoDelete> renderpass, Framebuffer<NoDelete> framebuffer, vk::Rect2D renderArea, std::vector<vk::ClearValue> const &clearValues, vk::SubpassContents contents)
+    {
+      commandBuffer.beginRenderPass({renderpass.raw(), framebuffer.raw(), renderArea, static_cast<uint32_t>(clearValues.size()), clearValues.data()}, contents);
+
+      return RenderPassExecLock{commandBuffer};
     }
   };
 
@@ -134,7 +187,7 @@ namespace magma
     {
       friend CommandPoolImpl;
 
-      void operator()(CommandPoolImpl const &commandPool)
+      void operator()(CommandPoolImpl const &commandPool) const
       {
 	if (commandPool)
 	  commandPool.device.destroyCommandPool(commandPool);
