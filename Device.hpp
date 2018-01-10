@@ -33,7 +33,7 @@ namespace magma
     {
     }
 
-    using vk::Device::Device;    
+    using vk::Device::Device;
 
     void swap(DeviceImpl &other)
     {
