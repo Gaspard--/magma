@@ -5,6 +5,7 @@
 #include "magma/Device.hpp"
 #include "magma/Framebuffer.hpp"
 #include "magma/RenderPass.hpp"
+#include "magma/Pipeline.hpp"
 
 namespace magma
 {
@@ -130,6 +131,11 @@ namespace magma
       commandBuffer.beginRenderPass({renderpass.raw(), framebuffer.raw(), renderArea, static_cast<uint32_t>(clearValues.size()), clearValues.data()}, contents);
 
       return RenderPassExecLock{commandBuffer};
+    }
+
+    auto bindGraphicsPipeline(Pipeline<NoDelete> pipeline)
+    {
+      commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline.raw());
     }
   };
 
