@@ -17,4 +17,4 @@ Library Style:
 
 ### Dependencies
 
-Uses an unamed utils library. Give me some time to create that repo
+Uses an unamed utils library. Give me some time to create that repo. Currently utils are stored here: https://github.com/Gaspard--/Wasted-Prophecies/tree/master/include/util
