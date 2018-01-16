@@ -3,26 +3,20 @@
 #include <vector>
 
 #include "magma/Device.hpp"
+#include "magma/DeviceBasedHandle.hpp"
 
 namespace magma
 {
-  class FenceImpl : protected vk::Fence
+  class FenceImpl : protected DeviceBasedHandleImpl<vk::Fence>
   {
   protected:
-    Device<NoDelete> device;
-
     ~FenceImpl() = default;
 
   public:
-    FenceImpl()
-      : vk::Fence(nullptr)
-      , device(nullptr)
-    {
-    }
+    FenceImpl() = default;
 
     FenceImpl(Device<NoDelete> device, vk::FenceCreateFlags flags)
-      : vk::Fence(device.createFence(flags))
-      , device(device)
+      : DeviceBasedHandleImpl<vk::Fence>(vk::Fence(device.createFence(flags)), device)
     {
     }
 
@@ -35,15 +29,7 @@ namespace magma
     {
       device.resetFences(1, this);
     }
-
-    void swap(FenceImpl &other)
-    {
-      using std::swap;
-
-      swap(static_cast<vk::Fence &>(*this), static_cast<vk::Fence &>(other));
-      swap(device, other.device);
-    }
-
+    
     struct Deleter
     {
       friend class FenceImpl;
@@ -55,11 +41,6 @@ namespace magma
       }
     };
   };
-
-  inline void swap(FenceImpl &lh, FenceImpl &rh)
-  {
-    lh.swap(rh);
-  }
 
   template<class Deleter = FenceImpl::Deleter>
   using Fence = Handle<FenceImpl, Deleter>;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "magma/Device.hpp"
+#include "magma/DeviceBasedHandle.hpp"
 
 namespace magma
 {
@@ -27,46 +27,32 @@ namespace magma
     ~RenderPassCreateInfo() = default;
   };
 
-  class RenderPassImpl : protected vk::RenderPass
+  class RenderPassImpl : protected DeviceBasedHandleImpl<vk::RenderPass>
   {
   private:
     RenderPassImpl(Device<NoDelete> device, vk::RenderPassCreateInfo const &renderPassCreateInfo)
-      : vk::RenderPass(device.createRenderPass(renderPassCreateInfo))
-      , device(device)
+      : DeviceBasedHandleImpl<vk::RenderPass>(device.createRenderPass(renderPassCreateInfo), device)
     {
     }
   protected:
-    Device<NoDelete> device;
 
     ~RenderPassImpl() = default;
   public:
-    RenderPassImpl()
-      : vk::RenderPass(nullptr)
-      , device(nullptr)
-    {
-    }
+    RenderPassImpl() = default;
 
     RenderPassImpl(Device<NoDelete> device, RenderPassCreateInfo const &renderPassCreateInfo)
       : RenderPassImpl(device, static_cast<vk::RenderPassCreateInfo>(renderPassCreateInfo))
     {
     }
 
-    auto getRenderAreaGranularity()
+    auto getRenderAreaGranularity() const
     {
       return device.getRenderAreaGranularity(*this);
     }
 
-    auto raw() const
+    auto raw() const noexcept
     {
       return static_cast<vk::RenderPass>(*this);
-    }
-
-    void swap(RenderPassImpl &other)
-    {
-      using std::swap;
-
-      swap(static_cast<vk::RenderPass &>(*this), static_cast<vk::RenderPass &>(other));
-      swap(device, other.device);
     }
 
     struct RenderPassDeleter
@@ -80,11 +66,6 @@ namespace magma
       }
     };
   };
-
-  inline void swap(RenderPassImpl &lh, RenderPassImpl &rh)
-  {
-    lh.swap(rh);
-  }
 
   template<class Deleter = RenderPassImpl::RenderPassDeleter>
   using RenderPass = Handle<RenderPassImpl, Deleter>;

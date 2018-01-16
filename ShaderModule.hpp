@@ -3,7 +3,7 @@
 
 namespace magma
 {
-  class ShaderModuleImpl : protected vk::ShaderModule
+  class ShaderModuleImpl : protected DeviceBasedHandleImpl<vk::ShaderModule>
   {
     static auto inputStreamToUint32Vect(std::istream &input)
     {
@@ -21,34 +21,20 @@ namespace magma
       return out;
     }
   protected:
-    Device<NoDelete> device;
-
     ~ShaderModuleImpl() = default;
+
   public:
-    ShaderModuleImpl()
-      : vk::ShaderModule(nullptr)
-      , device(nullptr)
-    {
-    }
+    ShaderModuleImpl() = default;
 
     template<class Container>
     ShaderModuleImpl(Device<NoDelete> device, Container const &code)
-      : vk::ShaderModule(device.createShaderModule(vk::ShaderModuleCreateInfo{{}, code.size() * sizeof(uint32_t), code.data()}))
-      , device(device)
+      : DeviceBasedHandleImpl<vk::ShaderModule>(device.createShaderModule(vk::ShaderModuleCreateInfo{{}, code.size() * sizeof(uint32_t), code.data()}), device)
     {
     }
 
     ShaderModuleImpl(Device<NoDelete> device, std::istream &input)
       : ShaderModuleImpl(device, inputStreamToUint32Vect(input))
     {
-    }
-
-    void swap(ShaderModuleImpl &other)
-    {
-      using std::swap;
-
-      swap(static_cast<vk::ShaderModule &>(*this), static_cast<vk::ShaderModule &>(other));
-      swap(device, other.device);
     }
 
     struct Deleter
@@ -61,11 +47,6 @@ namespace magma
       }
     };
   };
-
-  inline void swap(ShaderModuleImpl &lh, ShaderModuleImpl &rh)
-  {
-    lh.swap(rh);
-  }
 
   template<class Deleter = ShaderModuleImpl::Deleter>
   using ShaderModule = Handle<ShaderModuleImpl, Deleter>;

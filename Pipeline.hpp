@@ -1,11 +1,9 @@
 #pragma once
 
-#include "magma/Device.hpp"
+#include "magma/DeviceBasedHandle.hpp"
 
 namespace magma
 {
-  
-
   // typedef struct VkGraphicsPipelineCreateInfo {
   //     VkStructureType                                  sType;
   //     const void*                                      pNext;
@@ -112,42 +110,33 @@ namespace magma
     }
   };
   
-  class PipelineImpl : protected vk::Pipeline
+  class PipelineImpl : protected DeviceBasedHandleImpl<vk::Pipeline>
   {
   protected:
-    Device<NoDelete> device;
-
     ~PipelineImpl() = default;
+
   public:
-    PipelineImpl()
-      : vk::Pipeline(nullptr)
-    {
-    }
+    PipelineImpl() = default;
 
     // Note: use above `GraphicPipelineConfig` if you want to have an easier time configurating the pipeline.
     PipelineImpl(Device<NoDelete> device, vk::PipelineCache cache, vk::GraphicsPipelineCreateInfo const &info)
-      : vk::Pipeline(device.createGraphicsPipeline(cache, info))
+      : DeviceBasedHandleImpl(vk::Pipeline(device.createGraphicsPipeline(cache, info)), device)
     {
     }
 
-    auto raw() const
+    auto raw() const noexcept
     {
       return static_cast<vk::Pipeline>(*this);
     }
 
-    void swap(PipelineImpl &other)
-    {
-      using std::swap;
-
-      swap(static_cast<vk::Pipeline &>(*this), static_cast<vk::Pipeline &>(other));
-      swap(device, other.device);
-    }
-
     struct Deleter
     {
+      friend class PipelineImpl;
+
       void operator()(PipelineImpl const &pipeline) const
       {
-	pipeline.device.destroyPipeline(pipeline);
+	if (pipeline.device)
+	  pipeline.device.destroyPipeline(pipeline);
       }
     };
   };
