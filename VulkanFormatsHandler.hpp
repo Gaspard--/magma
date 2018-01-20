@@ -12,14 +12,14 @@ struct FormatGroup
   std::array<uint64_t, (format_count >> 6u) + 1u> bits;
 
 #define FORMAT_GROUP_OP(OP)						\
-  constexpr FormatGroup &operator OP##=(FormatGroup const &other)	\
+  constexpr FormatGroup &operator OP##=(FormatGroup const &other) noexcept \
   {									\
     using namespace arrayOps;						\
     bits OP##= other.bits;						\
     return *this;							\
   };									\
 									\
-  constexpr FormatGroup operator OP(FormatGroup const &other) const	\
+  constexpr FormatGroup operator OP(FormatGroup const &other) const noexcept \
   {									\
     FormatGroup result{*this};						\
 									\
@@ -31,31 +31,31 @@ struct FormatGroup
   FORMAT_GROUP_OP(&);
   FORMAT_GROUP_OP(^);
 
-  constexpr FormatGroup()
+  constexpr FormatGroup() noexcept
   : bits{}
   {
   }
 
-  constexpr FormatGroup(FormatGroup const &other)
+  constexpr FormatGroup(FormatGroup const &other) noexcept
   : bits(other.bits)
   {
   }
 
-  constexpr FormatGroup operator=(FormatGroup const &other)
+  constexpr FormatGroup operator=(FormatGroup const &other) noexcept
   {
     this->bits = other.bits;
     return *this;
   }
 
   template<class CONTAINER>
-  constexpr FormatGroup(CONTAINER const &formats)
+  constexpr FormatGroup(CONTAINER const &formats) noexcept
   : FormatGroup{}
   {
     for (auto format : formats)
       (*this)[format] = true;
   }
 
-  constexpr FormatGroup operator~() const
+  constexpr FormatGroup operator~() const noexcept
   {
     using namespace arrayOps;
     FormatGroup result{*this};
@@ -64,17 +64,17 @@ struct FormatGroup
     return result;
   }
 
-  constexpr bool operator[](uint32_t format) const
+  constexpr bool operator[](uint32_t format) const noexcept
   {
     return (bits[format >> 6] >> (format & 63)) & 1u;
   }
 
-  constexpr bool operator[](vk::Format format) const
+  constexpr bool operator[](vk::Format format) const noexcept
   {
     return (*this)[(uint32_t)format];
   }
 
-  constexpr auto operator[](uint32_t format)
+  constexpr auto operator[](uint32_t format) noexcept
   {
     struct BoolProxy
     {
@@ -100,12 +100,12 @@ struct FormatGroup
     return BoolProxy{*this, format};
   }
 
-  constexpr auto operator[](vk::Format format)
+  constexpr auto operator[](vk::Format format) noexcept
   {
     return (*this)[(uint32_t)format];
   }
 
-  operator bool() const
+  operator bool() const noexcept
   {
     return bits != (decltype(bits){});
   }
@@ -113,7 +113,7 @@ struct FormatGroup
 
 namespace vulkanFormatGroups
 {
-  constexpr FormatGroup makeFormatGroupFromIncludedRange(vk::Format min, vk::Format max)
+  constexpr FormatGroup makeFormatGroupFromIncludedRange(vk::Format min, vk::Format max) noexcept
   {
     FormatGroup result{};
 
@@ -122,7 +122,7 @@ namespace vulkanFormatGroups
     return result;
   }
 
-  constexpr FormatGroup makeFormatGroupFromIncludedRange(vk::Format min, vk::Format max, uint32_t skip)
+  constexpr FormatGroup makeFormatGroupFromIncludedRange(vk::Format min, vk::Format max, uint32_t skip) noexcept
   {
     FormatGroup result{};
 
