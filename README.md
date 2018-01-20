@@ -9,6 +9,7 @@ Library Features:
  - Device and Format selection
 
 Library Style:
+ - Header only
  - Proper RAII support, at the cost of minor performance and memory
  - No `virtual` classe inheritence or function pointers
  - `std::variants` are to be avoided unless they bring sizable usability benefits (none in sight yet)
@@ -17,10 +18,10 @@ Library Style:
 
 ### Dependencies
 
-Uses libclaws. https://github.com/Gaspard--/libclaws
+Uses claws library. https://github.com/Gaspard--/claws
 
 
 ## Usage
 
 Magma expects to be able to access itself with `magma/*.hpp` includes.
-Magma expects to be able to access libclaws with `claws/*.hpp` includes.
+Magma expects to be able to access claws with `claws/*.hpp` includes.
