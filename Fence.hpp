@@ -20,6 +20,6 @@ namespace magma
 
   inline auto DeviceImpl::createFence(vk::FenceCreateFlags flags) const
   {
-    return Fence<>(FenceDeleter{magma::Device<claws::NoDelete>(*this)}, vk::Device::createFence(flags));
+    return Fence<>(FenceDeleter{magma::Device<claws::NoDelete>(*this)}, vk::Device::createFence({flags}));
   }
 };
