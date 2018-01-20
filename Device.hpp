@@ -1,6 +1,6 @@
 #pragma once
 
-#include "util/HandleTypes.hpp"
+#include "claws/HandleTypes.hpp"
 #include "magma/VulkanHandler.hpp"
 
 namespace magma

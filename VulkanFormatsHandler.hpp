@@ -2,18 +2,19 @@
 
 #include <type_traits>
 #include "vulkan/vulkan.hpp"
-#include "util/Vect.hpp"
-#include "util/IteratorUtil.hpp"
+#include "claws/ArrayOps.hpp"
+#include "claws/IteratorUtil.hpp"
 
 struct FormatGroup
 {
   static constexpr uint32_t format_count{(uint32_t)vk::Format::eAstc12x12SrgbBlock + 1u}; // 184 + 1
 
-  Vect<(format_count >> 6u) + 1u, uint64_t> bits;
+  std::array<uint64_t, (format_count >> 6u) + 1u> bits;
 
 #define FORMAT_GROUP_OP(OP)						\
   constexpr FormatGroup &operator OP##=(FormatGroup const &other)	\
   {									\
+    using namespace arrayOps;						\
     bits OP##= other.bits;						\
     return *this;							\
   };									\
@@ -56,6 +57,7 @@ struct FormatGroup
 
   constexpr FormatGroup operator~() const
   {
+    using namespace arrayOps;
     FormatGroup result{*this};
 
     result.bits = ~result.bits;
@@ -105,7 +107,7 @@ struct FormatGroup
 
   operator bool() const
   {
-    return !bits.equals(decltype(bits){});
+    return bits != (decltype(bits){});
   }
 };
 
