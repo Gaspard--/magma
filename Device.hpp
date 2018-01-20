@@ -40,13 +40,29 @@ namespace magma
       swap(static_cast<vk::Device &>(*this), static_cast<vk::Device &>(other));
     }
 
-    auto createCommandPool(vk::CommandPoolCreateFlags flags, uint32_t queueFamilyIndex);
-    
-    // using vk::Device::createSwapchainKHR;
-    // using vk::Device::acquireNextImageKHR;
-    // using vk::Device::destroySwapchainKHR;
-    // using vk::Device::createRenderPass;
-    // using vk::Device::destroyRenderPass;
+    auto createCommandPool(vk::CommandPoolCreateFlags flags, uint32_t queueFamilyIndex) const;
+
+    auto shaderModuleDestructor() const noexcept;
+    auto framebufferDestructor() const noexcept;
+
+    template<class Container>
+    auto createShaderModule(Container const &) const;
+
+    auto createShaderModule(std::istream &input) const;
+
+    auto createFramebuffer(Handle<vk::RenderPass, NoDelete> renderPass, std::vector<vk::ImageView> const &attachements, uint32_t width, uint32_t height, uint32_t layers) const;
+
+    auto createFence(vk::FenceCreateFlags flags) const;
+
+    auto createPipeline(vk::GraphicsPipelineCreateInfo const &createInfo) const;
+
+    auto createRenderPass(vk::RenderPassCreateInfo const &renderPassCreateInfo) const;
+
+    auto getRenderAreaGranularity(Handle<vk::RenderPass, NoDelete> renderPass) const;
+
+
+    template<class... Params>
+    decltype(vk::Device::destroy(std::declval<Params>()...)) destroy(Params &&...) = delete;
 
     struct DeviceDeleter
     {

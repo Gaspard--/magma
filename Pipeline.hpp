@@ -1,6 +1,6 @@
 #pragma once
 
-#include "magma/DeviceBasedHandle.hpp"
+#include "magma/Device.hpp"
 
 namespace magma
 {
@@ -68,7 +68,7 @@ namespace magma
 				       nullptr,
 				       nullptr,
 				       layout,
-				       renderPass.raw(),
+				       renderPass,
 				       subpass,
 				       nullptr,
 				       -1)
@@ -110,37 +110,22 @@ namespace magma
     }
   };
   
-  class PipelineImpl : protected DeviceBasedHandleImpl<vk::Pipeline>
+  struct PipelineDeleter
   {
-  protected:
-    ~PipelineImpl() = default;
+    Device<NoDelete> device;
 
-  public:
-    PipelineImpl() = default;
-
-    // Note: use above `GraphicPipelineConfig` if you want to have an easier time configurating the pipeline.
-    PipelineImpl(Device<NoDelete> device, vk::PipelineCache cache, vk::GraphicsPipelineCreateInfo const &info)
-      : DeviceBasedHandleImpl(vk::Pipeline(device.createGraphicsPipeline(cache, info)), device)
+    void operator()(vk::Pipeline const &pipeline) const
     {
+      if (device)
+	device.destroyPipeline(pipeline);
     }
-
-    auto raw() const noexcept
-    {
-      return static_cast<vk::Pipeline>(*this);
-    }
-
-    struct Deleter
-    {
-      friend class PipelineImpl;
-
-      void operator()(PipelineImpl const &pipeline) const
-      {
-	if (pipeline.device)
-	  pipeline.device.destroyPipeline(pipeline);
-      }
-    };
   };
 
-  template<class Deleter = PipelineImpl::Deleter>
-  using Pipeline = Handle<PipelineImpl, Deleter>;
+  template<class Deleter = PipelineDeleter>
+  using Pipeline = Handle<vk::Pipeline, Deleter>;
+
+  inline auto DeviceImpl::createPipeline(vk::GraphicsPipelineCreateInfo const &createInfo) const
+  {
+    return Pipeline<>(PipelineDeleter{magma::Device<NoDelete>(*this)}, vk::Device::createGraphicsPipeline(nullptr, createInfo));
+  }
 };

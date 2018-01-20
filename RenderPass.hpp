@@ -1,6 +1,6 @@
 #pragma once
 
-#include "magma/DeviceBasedHandle.hpp"
+#include "magma/Device.hpp"
 
 namespace magma
 {
@@ -27,46 +27,27 @@ namespace magma
     ~RenderPassCreateInfo() = default;
   };
 
-  class RenderPassImpl : protected DeviceBasedHandleImpl<vk::RenderPass>
+  struct RenderPassDeleter
   {
-  private:
-    RenderPassImpl(Device<NoDelete> device, vk::RenderPassCreateInfo const &renderPassCreateInfo)
-      : DeviceBasedHandleImpl<vk::RenderPass>(device.createRenderPass(renderPassCreateInfo), device)
+    Device<NoDelete> device;
+
+    void operator()(vk::RenderPass const &renderPass)
     {
+      if (device)
+        device.destroyRenderPass(renderPass);
     }
-  protected:
-
-    ~RenderPassImpl() = default;
-  public:
-    RenderPassImpl() = default;
-
-    RenderPassImpl(Device<NoDelete> device, RenderPassCreateInfo const &renderPassCreateInfo)
-      : RenderPassImpl(device, static_cast<vk::RenderPassCreateInfo>(renderPassCreateInfo))
-    {
-    }
-
-    auto getRenderAreaGranularity() const
-    {
-      return device.getRenderAreaGranularity(*this);
-    }
-
-    auto raw() const noexcept
-    {
-      return static_cast<vk::RenderPass>(*this);
-    }
-
-    struct RenderPassDeleter
-    {
-      friend class RenderPassImpl;
-
-      void operator()(RenderPassImpl const &renderPass)
-      {
-	if (renderPass)
-	  renderPass.device.destroyRenderPass(renderPass);
-      }
-    };
   };
 
-  template<class Deleter = RenderPassImpl::RenderPassDeleter>
-  using RenderPass = Handle<RenderPassImpl, Deleter>;
+  template<class Deleter = RenderPassDeleter>
+  using RenderPass = Handle<vk::RenderPass, Deleter>;
+
+  inline auto DeviceImpl::createRenderPass(vk::RenderPassCreateInfo const &renderPassCreateInfo) const
+  {
+    return RenderPass<>(RenderPassDeleter{magma::Device<NoDelete>(*this)}, vk::Device::createRenderPass(renderPassCreateInfo));
+  }
+
+  inline auto DeviceImpl::getRenderAreaGranularity(RenderPass<NoDelete> renderPass) const
+  {
+    return vk::Device::getRenderAreaGranularity(renderPass);
+  }
 };

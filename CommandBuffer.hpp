@@ -13,7 +13,6 @@ namespace magma
   {
     vk::Device device;
     vk::CommandPool commandPool;
-    uint32_t queueFamilyIndex;
   };
 
   template<class CommandBufferType>
@@ -128,14 +127,14 @@ namespace magma
 
     auto beginRenderPass(RenderPass<NoDelete> renderpass, Framebuffer<NoDelete> framebuffer, vk::Rect2D renderArea, std::vector<vk::ClearValue> const &clearValues, vk::SubpassContents contents)
     {
-      commandBuffer.beginRenderPass({renderpass.raw(), framebuffer.raw(), renderArea, static_cast<uint32_t>(clearValues.size()), clearValues.data()}, contents);
+      commandBuffer.beginRenderPass({renderpass, framebuffer, renderArea, static_cast<uint32_t>(clearValues.size()), clearValues.data()}, contents);
 
       return RenderPassExecLock{commandBuffer};
     }
 
     auto bindGraphicsPipeline(Pipeline<NoDelete> pipeline)
     {
-      commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline.raw());
+      commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline);
     }
   };
 
@@ -143,21 +142,18 @@ namespace magma
   {
   protected:
     Device<NoDelete> device;
-    uint32_t queueFamilyIndex;
 
     ~CommandPoolImpl() = default;
   public:
     CommandPoolImpl()
       : vk::CommandPool(nullptr)
       , device(nullptr)
-      , queueFamilyIndex(0)
     {
     }
 
-    CommandPoolImpl(Device<NoDelete> device, uint32_t queueFamilyIndex, vk::CommandPool commandPool)
+    CommandPoolImpl(Device<NoDelete> device, vk::CommandPool commandPool)
       : vk::CommandPool(commandPool)
       , device(device)
-      , queueFamilyIndex(queueFamilyIndex)
     {
     }
 
@@ -170,14 +166,14 @@ namespace magma
     {
       vk::CommandBufferAllocateInfo info{*this, vk::CommandBufferLevel::ePrimary, commandBufferCount};
 
-      return CommandBufferGroup<PrimaryCommandBuffer>{{device, *this, queueFamilyIndex}, device.allocateCommandBuffers(info)};
+      return CommandBufferGroup<PrimaryCommandBuffer>{{device, *this}, device.allocateCommandBuffers(info)};
     }
 
     auto allocateSecondaryCommandBuffers(uint32_t commandBufferCount)
     {
       vk::CommandBufferAllocateInfo info{*this, vk::CommandBufferLevel::eSecondary, commandBufferCount};
 
-      return CommandBufferGroup<SecondaryCommandBuffer>{{device, *this, queueFamilyIndex}, device.allocateCommandBuffers(info)};
+      return CommandBufferGroup<SecondaryCommandBuffer>{{device, *this}, device.allocateCommandBuffers(info)};
     }
 
     void swap(CommandPoolImpl &other)
@@ -186,7 +182,6 @@ namespace magma
 
       swap(static_cast<vk::CommandPool &>(*this), static_cast<vk::CommandPool &>(other));
       swap(device, other.device);
-      swap(queueFamilyIndex, other.queueFamilyIndex);
     }
 
     struct CommandPoolDeleter
@@ -209,10 +204,10 @@ namespace magma
   template<class Deleter = CommandPoolImpl::CommandPoolDeleter>
   using CommandPool = Handle<CommandPoolImpl, Deleter>;
 
-  auto DeviceImpl::createCommandPool(vk::CommandPoolCreateFlags flags, uint32_t queueFamilyIndex)
+  inline auto DeviceImpl::createCommandPool(vk::CommandPoolCreateFlags flags, uint32_t queueFamilyIndex) const
   {
     vk::CommandPoolCreateInfo createInfo{flags, queueFamilyIndex};
 
-    return CommandPool<>{magma::Device<NoDelete>(*this), queueFamilyIndex, vk::Device::createCommandPool(createInfo)};
+    return CommandPool<>{magma::Device<NoDelete>(*this), vk::Device::createCommandPool(createInfo)};
   }
 };
