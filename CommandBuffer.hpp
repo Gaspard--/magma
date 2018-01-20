@@ -9,33 +9,27 @@
 
 namespace magma
 {
-  struct CommandBufferContext
+  struct CommandBufferGroupDeleter
   {
-    vk::Device device;
+    Device<claws::NoDelete> device;
     vk::CommandPool commandPool;
-  };
 
-  template<class CommandBufferType>
-  using CommandBufferGroupContainer = claws::ContextfulContainer<CommandBufferType, std::vector<vk::CommandBuffer>, CommandBufferContext>;
-
-  template<class CommandBufferType>
-  class CommandBufferGroup : public CommandBufferGroupContainer<CommandBufferType>
-  {
-  public:
-    CommandBufferGroup(CommandBufferContext const &context, std::vector<vk::CommandBuffer> &&commandBuffers)
-      : CommandBufferGroupContainer<CommandBufferType>{context, std::move(commandBuffers)}
+    template<class ContiguousContainer>
+    constexpr void operator()(ContiguousContainer const &container) const
     {
-    }
-
-    CommandBufferGroup(CommandBufferGroup const &) = delete;
-    CommandBufferGroup(CommandBufferGroup &&) = default;
-
-    ~CommandBufferGroup()
-    {
-      if (CommandBufferGroupContainer<CommandBufferType>::container.size())
-	CommandBufferGroupContainer<CommandBufferType>::context.device.freeCommandBuffers(CommandBufferGroupContainer<CommandBufferType>::context.commandPool, CommandBufferGroupContainer<CommandBufferType>::container.size(), CommandBufferGroupContainer<CommandBufferType>::container.data());
+      if (!container.empty())
+        device.freeCommandBuffers(commandPool, container.size(), container.data());
     }
   };
+
+  template<class Type>
+  using VectorAlias = std::vector<Type>;
+
+  template<class Type>
+  using VectorAlias = std::vector<Type>;
+
+  template<class CommandBufferType, class Deleter = CommandBufferGroupDeleter, template <class Type> typename ContiguousContainer = VectorAlias>
+  using CommandBufferGroup = claws::GroupHandle<CommandBufferType, ContiguousContainer<vk::CommandBuffer>, Deleter>;
 
   class CommandBuffer
   {
@@ -43,18 +37,17 @@ namespace magma
     vk::CommandBuffer commandBuffer;
 
   public:
-    CommandBuffer(CommandBufferContext,
-		  vk::CommandBuffer commandBuffer)
+    CommandBuffer(vk::CommandBuffer commandBuffer)
       : commandBuffer(commandBuffer)
     {
     }
 
-    void end()
+    void end() const
     {
       commandBuffer.end();
     }
 
-    void reset(vk::CommandBufferResetFlags flags)
+    void reset(vk::CommandBufferResetFlags flags) const
     {
       commandBuffer.reset(flags);
     }
@@ -63,7 +56,7 @@ namespace magma
   class SecondaryCommandBuffer : public CommandBuffer
   {
     void begin(vk::CommandBufferUsageFlags flags,
-	       vk::CommandBufferInheritanceInfo const &pInheritanceInfo)
+	       vk::CommandBufferInheritanceInfo const &pInheritanceInfo) const
     {
       commandBuffer.begin(vk::CommandBufferBeginInfo{flags, &pInheritanceInfo});
     }
@@ -102,7 +95,7 @@ namespace magma
       return *this;
     }
 
-    void next(vk::SubpassContents contents)
+    void next(vk::SubpassContents contents) const
     {
       commandBuffer.nextSubpass(contents);
     }
@@ -115,24 +108,24 @@ namespace magma
 
   class PrimaryCommandBuffer : public CommandBuffer
   {
-    void begin(vk::CommandBufferUsageFlags flags)
+    void begin(vk::CommandBufferUsageFlags flags) const
     {
       commandBuffer.begin(vk::CommandBufferBeginInfo{flags, nullptr});
     }
 
-    void execBuffers(CommandBufferGroup<SecondaryCommandBuffer> &secondaryCommands)
+    void execBuffers(CommandBufferGroup<SecondaryCommandBuffer> const &secondaryCommands) const
     {
-      commandBuffer.executeCommands(secondaryCommands.container);
+      commandBuffer.executeCommands(static_cast<std::vector<vk::CommandBuffer> const &>(secondaryCommands));
     }
 
-    auto beginRenderPass(RenderPass<claws::NoDelete> renderpass, Framebuffer<claws::NoDelete> framebuffer, vk::Rect2D renderArea, std::vector<vk::ClearValue> const &clearValues, vk::SubpassContents contents)
+    auto beginRenderPass(RenderPass<claws::NoDelete> renderpass, Framebuffer<claws::NoDelete> framebuffer, vk::Rect2D renderArea, std::vector<vk::ClearValue> const &clearValues, vk::SubpassContents contents) const
     {
       commandBuffer.beginRenderPass({renderpass, framebuffer, renderArea, static_cast<uint32_t>(clearValues.size()), clearValues.data()}, contents);
 
       return RenderPassExecLock{commandBuffer};
     }
 
-    auto bindGraphicsPipeline(Pipeline<claws::NoDelete> pipeline)
+    auto bindGraphicsPipeline(Pipeline<claws::NoDelete> pipeline) const
     {
       commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline);
     }
