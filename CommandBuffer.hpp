@@ -189,7 +189,7 @@ namespace magma
     };
   };
 
-  void swap(CommandPoolImpl &lh, CommandPoolImpl &rh)
+  inline void swap(CommandPoolImpl &lh, CommandPoolImpl &rh)
   {
     lh.swap(rh);
   }

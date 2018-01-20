@@ -22,9 +22,4 @@ namespace magma
   {
     return Fence<>(FenceDeleter{magma::Device<claws::NoDelete>(*this)}, vk::Device::createFence(flags));
   }
-
-  inline auto DeviceImpl::getStatus(Fence<claws::NoDelete> fence) const
-  {
-    return vk::Device::getFenceStatus(fence);
-  }
 };

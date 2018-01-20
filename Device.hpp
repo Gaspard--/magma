@@ -51,7 +51,17 @@ namespace magma
 
     auto createFence(vk::FenceCreateFlags flags) const;
 
-    auto getStatus(claws::Handle<vk::Fence, claws::NoDelete> fence) const;
+    using vk::Device::getFenceStatus;
+    using vk::Device::resetFences;
+    using vk::Device::waitForFences;
+
+    auto createSemaphore() const;
+
+    auto createEvenv() const;
+
+    using vk::Device::getEventStatus;
+    using vk::Device::setEvent;
+    using vk::Device::resetEvent;
 
     auto createPipeline(vk::GraphicsPipelineCreateInfo const &createInfo) const;
 
@@ -75,7 +85,7 @@ namespace magma
     };
   };
 
-  void swap(DeviceImpl &lh, DeviceImpl &rh) noexcept
+  static inline void swap(DeviceImpl &lh, DeviceImpl &rh) noexcept
   {
     lh.swap(rh);
   }
