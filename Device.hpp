@@ -50,7 +50,7 @@ namespace magma
 
     auto createShaderModule(std::istream &input) const;
 
-    auto createFramebuffer(Handle<vk::RenderPass, NoDelete> renderPass, std::vector<vk::ImageView> const &attachements, uint32_t width, uint32_t height, uint32_t layers) const;
+    auto createFramebuffer(claws::Handle<vk::RenderPass, claws::NoDelete> renderPass, std::vector<vk::ImageView> const &attachements, uint32_t width, uint32_t height, uint32_t layers) const;
 
     auto createFence(vk::FenceCreateFlags flags) const;
 
@@ -58,7 +58,7 @@ namespace magma
 
     auto createRenderPass(vk::RenderPassCreateInfo const &renderPassCreateInfo) const;
 
-    auto getRenderAreaGranularity(Handle<vk::RenderPass, NoDelete> renderPass) const;
+    auto getRenderAreaGranularity(claws::Handle<vk::RenderPass, claws::NoDelete> renderPass) const;
 
 
     template<class... Params>
@@ -82,5 +82,5 @@ namespace magma
   }
 
   template<class Deleter = DeviceImpl::DeviceDeleter>
-  using Device = Handle<DeviceImpl, Deleter>;
+  using Device = claws::Handle<DeviceImpl, Deleter>;
 };

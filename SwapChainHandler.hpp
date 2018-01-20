@@ -40,7 +40,7 @@ namespace magma
   class SwapchainImpl
   {
   protected:
-    Device<NoDelete> device;
+    Device<claws::NoDelete> device;
     ~SwapchainImpl() = default;
 
   public:
@@ -63,10 +63,10 @@ namespace magma
 		return best;
 	    }
 	  throw std::runtime_error("Vulkan Swapchain: No suitable format found.");
-	})(FormatGroup{containerView(formats.begin(), formats.end(), [](auto const &format)
-				     {
-				       return format.format;
-				     })});
+	})(FormatGroup{claws::containerView(formats.begin(), formats.end(), [](auto const &format)
+					    {
+					      return format.format;
+					    })});
       return *std::find_if(formats.begin(), formats.end(), [&possibillities](auto const &format)
 			   {
 			     return possibillities[format.format];
@@ -80,7 +80,7 @@ namespace magma
     }
 
     // TODO: refactor the fuck out of this.
-    SwapchainImpl(Surface const &surface, Device<NoDelete> device, vk::PhysicalDevice physicalDevice)
+    SwapchainImpl(Surface const &surface, Device<claws::NoDelete> device, vk::PhysicalDevice physicalDevice)
       : device(device)
     {
       constexpr auto preferedFormatRanking =
@@ -159,5 +159,5 @@ namespace magma
   }
 
   template<class Deleter = SwapchainImpl::SwapchainDeleter>
-  using Swapchain = Handle<SwapchainImpl, Deleter>;
+  using Swapchain = claws::Handle<SwapchainImpl, Deleter>;
 };

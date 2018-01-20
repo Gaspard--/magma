@@ -16,7 +16,7 @@ namespace magma
   };
 
   template<class CommandBufferType>
-  using CommandBufferGroupContainer = ContextfulContainer<CommandBufferType, std::vector<vk::CommandBuffer>, CommandBufferContext>;
+  using CommandBufferGroupContainer = claws::ContextfulContainer<CommandBufferType, std::vector<vk::CommandBuffer>, CommandBufferContext>;
 
   template<class CommandBufferType>
   class CommandBufferGroup : public CommandBufferGroupContainer<CommandBufferType>
@@ -125,14 +125,14 @@ namespace magma
       commandBuffer.executeCommands(secondaryCommands.container);
     }
 
-    auto beginRenderPass(RenderPass<NoDelete> renderpass, Framebuffer<NoDelete> framebuffer, vk::Rect2D renderArea, std::vector<vk::ClearValue> const &clearValues, vk::SubpassContents contents)
+    auto beginRenderPass(RenderPass<claws::NoDelete> renderpass, Framebuffer<claws::NoDelete> framebuffer, vk::Rect2D renderArea, std::vector<vk::ClearValue> const &clearValues, vk::SubpassContents contents)
     {
       commandBuffer.beginRenderPass({renderpass, framebuffer, renderArea, static_cast<uint32_t>(clearValues.size()), clearValues.data()}, contents);
 
       return RenderPassExecLock{commandBuffer};
     }
 
-    auto bindGraphicsPipeline(Pipeline<NoDelete> pipeline)
+    auto bindGraphicsPipeline(Pipeline<claws::NoDelete> pipeline)
     {
       commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline);
     }
@@ -141,7 +141,7 @@ namespace magma
   class CommandPoolImpl : public vk::CommandPool
   {
   protected:
-    Device<NoDelete> device;
+    Device<claws::NoDelete> device;
 
     ~CommandPoolImpl() = default;
   public:
@@ -151,7 +151,7 @@ namespace magma
     {
     }
 
-    CommandPoolImpl(Device<NoDelete> device, vk::CommandPool commandPool)
+    CommandPoolImpl(Device<claws::NoDelete> device, vk::CommandPool commandPool)
       : vk::CommandPool(commandPool)
       , device(device)
     {
@@ -202,12 +202,12 @@ namespace magma
   }
 
   template<class Deleter = CommandPoolImpl::CommandPoolDeleter>
-  using CommandPool = Handle<CommandPoolImpl, Deleter>;
+  using CommandPool = claws::Handle<CommandPoolImpl, Deleter>;
 
   inline auto DeviceImpl::createCommandPool(vk::CommandPoolCreateFlags flags, uint32_t queueFamilyIndex) const
   {
     vk::CommandPoolCreateInfo createInfo{flags, queueFamilyIndex};
 
-    return CommandPool<>{magma::Device<NoDelete>(*this), vk::Device::createCommandPool(createInfo)};
+    return CommandPool<>{magma::Device<claws::NoDelete>(*this), vk::Device::createCommandPool(createInfo)};
   }
 };

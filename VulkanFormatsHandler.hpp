@@ -14,7 +14,7 @@ struct FormatGroup
 #define FORMAT_GROUP_OP(OP)						\
   constexpr FormatGroup &operator OP##=(FormatGroup const &other) noexcept \
   {									\
-    using namespace arrayOps;						\
+    using namespace claws::arrayOps;						\
     bits OP##= other.bits;						\
     return *this;							\
   };									\
@@ -57,7 +57,7 @@ struct FormatGroup
 
   constexpr FormatGroup operator~() const noexcept
   {
-    using namespace arrayOps;
+    using namespace claws::arrayOps;
     FormatGroup result{*this};
 
     result.bits = ~result.bits;

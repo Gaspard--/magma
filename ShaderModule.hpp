@@ -23,7 +23,7 @@ namespace magma
 
   struct ShaderModuleDestructor
   {
-    magma::Device<NoDelete> device;
+    magma::Device<claws::NoDelete> device;
 
     void operator()(vk::ShaderModule const &shaderModule) const
     {
@@ -34,11 +34,11 @@ namespace magma
 
   inline auto DeviceImpl::shaderModuleDestructor() const noexcept
   {
-    return ShaderModuleDestructor{magma::Device<NoDelete>(*this)};
+    return ShaderModuleDestructor{magma::Device<claws::NoDelete>(*this)};
   }
 
   template<class Deleter = decltype(std::declval<DeviceImpl>().shaderModuleDestructor())>
-  using ShaderModule = Handle<vk::ShaderModule, Deleter>;
+  using ShaderModule = claws::Handle<vk::ShaderModule, Deleter>;
 
   template<class Container>
   inline auto DeviceImpl::createShaderModule(Container const &code) const
