@@ -32,18 +32,13 @@ namespace magma
     }
   };
 
-  inline auto DeviceImpl::shaderModuleDestructor() const noexcept
-  {
-    return ShaderModuleDestructor{magma::Device<claws::NoDelete>(*this)};
-  }
-
-  template<class Deleter = decltype(std::declval<DeviceImpl>().shaderModuleDestructor())>
+  template<class Deleter = ShaderModuleDestructor>
   using ShaderModule = claws::Handle<vk::ShaderModule, Deleter>;
 
   template<class Container>
   inline auto DeviceImpl::createShaderModule(Container const &code) const
   {
-    return ShaderModule<>(std::move(shaderModuleDestructor()), vk::Device::createShaderModule(vk::ShaderModuleCreateInfo{{}, code.size() * sizeof(uint32_t), code.data()}));
+    return ShaderModule<>(std::move(ShaderModuleDestructor{magma::Device<claws::NoDelete>(*this)}), vk::Device::createShaderModule(vk::ShaderModuleCreateInfo{{}, code.size() * sizeof(uint32_t), code.data()}));
   }
 
   inline auto DeviceImpl::createShaderModule(std::istream &input) const

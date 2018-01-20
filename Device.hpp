@@ -42,9 +42,6 @@ namespace magma
 
     auto createCommandPool(vk::CommandPoolCreateFlags flags, uint32_t queueFamilyIndex) const;
 
-    auto shaderModuleDestructor() const noexcept;
-    auto framebufferDestructor() const noexcept;
-
     template<class Container>
     auto createShaderModule(Container const &) const;
 
@@ -54,20 +51,22 @@ namespace magma
 
     auto createFence(vk::FenceCreateFlags flags) const;
 
+    auto getStatus(claws::Handle<vk::Fence, claws::NoDelete> fence) const;
+
     auto createPipeline(vk::GraphicsPipelineCreateInfo const &createInfo) const;
 
     auto createRenderPass(vk::RenderPassCreateInfo const &renderPassCreateInfo) const;
 
     auto getRenderAreaGranularity(claws::Handle<vk::RenderPass, claws::NoDelete> renderPass) const;
 
-
+    using vk::Device::operator bool;
+    using vk::Device::operator !;
+    
     template<class... Params>
     decltype(vk::Device::destroy(std::declval<Params>()...)) destroy(Params &&...) = delete;
 
     struct DeviceDeleter
     {
-      friend class DeviceImpl;
-
       void operator()(vk::Device const &device) const
       {
 	if (device)
@@ -76,7 +75,7 @@ namespace magma
     };
   };
 
-  void swap(DeviceImpl &lh, DeviceImpl &rh)
+  void swap(DeviceImpl &lh, DeviceImpl &rh) noexcept
   {
     lh.swap(rh);
   }
