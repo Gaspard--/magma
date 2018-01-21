@@ -4,10 +4,7 @@
 #include <vector>
 #include <unordered_map>
 #include <set>
-#include "vulkan/vulkan.hpp"
 
-namespace magma
-{
 #ifdef DEBUG_LAYERS
   inline VkResult vkCreateDebugReportCallbackEXT(VkInstance instance, VkDebugReportCallbackCreateInfoEXT const *createInfo, VkAllocationCallbacks const *allocator, VkDebugReportCallbackEXT *callback)
   {
@@ -25,6 +22,11 @@ namespace magma
     throw std::runtime_error("vulkan: Failed to load vkDestroyDebugReportCallbackEXT");
   }
 #endif
+
+#include "vulkan/vulkan.hpp"
+
+namespace magma
+{
 
   template<class... T>
   std::array<char const *, sizeof...(T)> make_const_char_array(T... params)

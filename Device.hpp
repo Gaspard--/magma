@@ -71,6 +71,8 @@ namespace magma
 
     auto createImageView(vk::ImageViewCreateFlags flags, vk::Image image, vk::ImageViewType type, vk::Format format, vk::ComponentMapping components, vk::ImageSubresourceRange subresourceRange) const;
 
+    auto createPipelineLayout(vk::PipelineLayoutCreateFlags flags, std::vector<vk::DescriptorSetLayout> const &setLayouts, std::vector<vk::PushConstantRange> const &pushConstantRanges) const;
+
     using vk::Device::operator bool;
     using vk::Device::operator !;
     

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "magma/Device.hpp"
+#include "magma/PipelineLayout.hpp"
 
 namespace magma
 {
@@ -48,16 +49,16 @@ namespace magma
     std::vector<vk::PipelineShaderStageCreateInfo> stages;
   public:
     GraphicsPipelineConfig(vk::PipelineCreateFlagBits flags,
-		   std::vector<vk::PipelineShaderStageCreateInfo> &&stages,
-		   vk::PipelineVertexInputStateCreateInfo const &vertexInputState,
-		   vk::PipelineInputAssemblyStateCreateInfo const &inputAssemblyState,
-		   vk::PipelineRasterizationStateCreateInfo const &rasterizationState,
-		   vk::PipelineLayout const &layout,
-		   RenderPass<claws::NoDelete> renderPass,
-		   uint32_t subpass)
+			   std::vector<vk::PipelineShaderStageCreateInfo> &&stages,
+			   vk::PipelineVertexInputStateCreateInfo const &vertexInputState,
+			   vk::PipelineInputAssemblyStateCreateInfo const &inputAssemblyState,
+			   vk::PipelineRasterizationStateCreateInfo const &rasterizationState,
+			   PipelineLayout<claws::NoDelete> const &layout,
+			   RenderPass<claws::NoDelete> renderPass,
+			   uint32_t subpass)
       : vk::GraphicsPipelineCreateInfo(flags,
 				       static_cast<uint32_t>(stages.size()),
-				       stages.data(),
+				       nullptr,
 				       &vertexInputState,
 				       &inputAssemblyState,
 				       nullptr,
@@ -74,6 +75,7 @@ namespace magma
 				       -1)
       , stages(std::move(stages))
     {
+      this->pStages = this->stages.data();
     }
 
     void addRasteringInfo(vk::PipelineViewportStateCreateInfo const &viewportState, vk::PipelineMultisampleStateCreateInfo const &multisampleState)
@@ -85,7 +87,7 @@ namespace magma
     void addRasteringDepthStencilInfo(vk::PipelineViewportStateCreateInfo const &viewportState, vk::PipelineMultisampleStateCreateInfo const &multisampleState, vk::PipelineDepthStencilStateCreateInfo const &depthStencilState)
     {
       this->pDepthStencilState = &depthStencilState;
-       addRasteringInfo(viewportState, multisampleState);
+      addRasteringInfo(viewportState, multisampleState);
     }
 
     void addRasteringColorAttachementDepthStencilInfo(vk::PipelineViewportStateCreateInfo const &viewportState, vk::PipelineMultisampleStateCreateInfo const &multisampleState, vk::PipelineDepthStencilStateCreateInfo const &depthStencilState, vk::PipelineColorBlendStateCreateInfo const &colorBlendState)
