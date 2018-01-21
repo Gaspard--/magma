@@ -6,10 +6,15 @@ namespace magma
 {
   struct RenderPassCreateInfo
   {
+    vk::RenderPassCreateFlags flags;
     std::vector<vk::AttachmentDescription> attachements;
     std::vector<vk::SubpassDescription> subPasses;
     std::vector<vk::SubpassDependency> subPassDependencies;
-    vk::RenderPassCreateFlags flags;
+
+    RenderPassCreateInfo(vk::RenderPassCreateFlags flags)
+      : flags(flags)
+    {
+    }
 
     operator vk::RenderPassCreateInfo() const
     {

@@ -69,6 +69,8 @@ namespace magma
 
     auto getRenderAreaGranularity(claws::Handle<vk::RenderPass, claws::NoDelete> renderPass) const;
 
+    auto createImageView(vk::ImageViewCreateFlags flags, vk::Image image, vk::ImageViewType type, vk::Format format, vk::ComponentMapping components, vk::ImageSubresourceRange subresourceRange) const;
+
     using vk::Device::operator bool;
     using vk::Device::operator !;
     

@@ -41,6 +41,7 @@ namespace magma
   {
   protected:
     Device<claws::NoDelete> device;
+    vk::Format format;
     ~SwapchainImpl() = default;
 
   public:
@@ -75,6 +76,7 @@ namespace magma
 
     SwapchainImpl()
       : device(nullptr)
+      , format{}
       , vkSwapchain(nullptr)
     {
     }
@@ -90,9 +92,11 @@ namespace magma
 	  (vulkanFormatGroups::R8G8B8A8 | vulkanFormatGroups::B8G8R8A8 | vulkanFormatGroups::R8G8B8A8 | vulkanFormatGroups::B8G8R8A8)
 
 	};
-      auto format(chooseImageFormat(surface, physicalDevice, preferedFormatRanking));      
+      auto format(chooseImageFormat(surface, physicalDevice, preferedFormatRanking));
       auto capabilities(physicalDevice.getSurfaceCapabilitiesKHR(surface.vkSurface));
       auto presentModes(physicalDevice.getSurfacePresentModesKHR(surface.vkSurface));
+
+      this->format = format.format;
 
       constexpr auto order = {vk::PresentModeKHR::eMailbox,
 			      vk::PresentModeKHR::eFifoRelaxed,
@@ -128,7 +132,17 @@ namespace magma
       vkSwapchain = device.createSwapchainKHR(createInfo);
     }
 
-    auto getImageIndex(vk::Semaphore sem, vk::Fence fence)
+    auto getImages()
+    {
+      return device.getSwapchainImagesKHR(vkSwapchain);
+    }
+
+    auto getFormat() const
+    {
+      return this->format;
+    }
+
+    auto getImageIndex(vk::Semaphore sem, vk::Fence fence) const
     {
       return device.acquireNextImageKHR(vkSwapchain, 20, sem, fence);
     }
@@ -138,6 +152,7 @@ namespace magma
       using std::swap;
 
       swap(device, other.device);
+      swap(format, other.format);
       swap(vkSwapchain, other.vkSwapchain);
     }
 
