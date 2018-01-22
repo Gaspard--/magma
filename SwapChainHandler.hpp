@@ -142,9 +142,14 @@ namespace magma
       return this->format;
     }
 
-    auto getImageIndex(vk::Semaphore sem, vk::Fence fence) const
+    auto getImageIndex(vk::Semaphore sem, uint64_t timeout, vk::Fence fence) const
     {
-      return device.acquireNextImageKHR(vkSwapchain, 20, sem, fence);
+      return device.acquireNextImageKHR(vkSwapchain, timeout, sem, fence);
+    }
+
+    auto &raw()
+    {
+      return static_cast<vk::SwapchainKHR &>(vkSwapchain);
     }
 
     void swap(SwapchainImpl &other)

@@ -17,7 +17,7 @@ namespace magma
   };
 
   template<class Deleter = FramebufferDeleter>
-  using Framebuffer = claws::Handle<vk::Framebuffer, FramebufferDeleter>;
+  using Framebuffer = claws::Handle<vk::Framebuffer, Deleter>;
 
   inline auto DeviceImpl::createFramebuffer(RenderPass<claws::NoDelete> renderPass, std::vector<vk::ImageView> const &attachements, uint32_t width, uint32_t height, uint32_t layers) const
   {

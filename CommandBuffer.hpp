@@ -31,34 +31,44 @@ namespace magma
   template<class CommandBufferType, class Deleter = CommandBufferGroupDeleter, template <class Type> typename ContiguousContainer = VectorAlias>
   using CommandBufferGroup = claws::GroupHandle<CommandBufferType, ContiguousContainer<vk::CommandBuffer>, Deleter>;
 
-  class CommandBuffer
+  // template<class CommandBufferType, class Deleter = CommandBufferGroupDeleter, template <class Type> typename ContiguousContainer = VectorAlias>
+  // using CommandBufferGroup = claws::Handle<ContiguousContainer<CommandBufferType>, Deleter>;
+
+  class CommandBuffer : protected vk::CommandBuffer
   {
   protected:
-    vk::CommandBuffer commandBuffer;
 
   public:
     CommandBuffer(vk::CommandBuffer commandBuffer)
-      : commandBuffer(commandBuffer)
+      : vk::CommandBuffer(commandBuffer)
     {
+    }
+
+    auto &raw()
+    {
+      return static_cast<vk::CommandBuffer &>(*this);
     }
 
     void end() const
     {
-      commandBuffer.end();
+      vk::CommandBuffer::end();
     }
 
     void reset(vk::CommandBufferResetFlags flags) const
     {
-      commandBuffer.reset(flags);
+      vk::CommandBuffer::reset(flags);
     }
   };
 
   class SecondaryCommandBuffer : public CommandBuffer
   {
+  public:
+    using CommandBuffer::CommandBuffer;
+
     void begin(vk::CommandBufferUsageFlags flags,
 	       vk::CommandBufferInheritanceInfo const &pInheritanceInfo) const
     {
-      commandBuffer.begin(vk::CommandBufferBeginInfo{flags, &pInheritanceInfo});
+      vk::CommandBuffer::begin(vk::CommandBufferBeginInfo{flags, &pInheritanceInfo});
     }
   };
 
@@ -100,6 +110,16 @@ namespace magma
       commandBuffer.nextSubpass(contents);
     }
 
+    void draw(uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance) const
+    {
+      commandBuffer.draw(vertexCount, instanceCount, firstVertex, firstInstance);
+    }
+
+    void bindGraphicsPipeline(Pipeline<claws::NoDelete> pipeline) const
+    {
+      commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline);
+    }
+
     ~RenderPassExecLock()
     {
       commandBuffer.endRenderPass();
@@ -108,26 +128,24 @@ namespace magma
 
   class PrimaryCommandBuffer : public CommandBuffer
   {
+  public:
+    using CommandBuffer::CommandBuffer;
+
     void begin(vk::CommandBufferUsageFlags flags) const
     {
-      commandBuffer.begin(vk::CommandBufferBeginInfo{flags, nullptr});
+      vk::CommandBuffer::begin(vk::CommandBufferBeginInfo{flags, nullptr});
     }
 
     void execBuffers(CommandBufferGroup<SecondaryCommandBuffer> const &secondaryCommands) const
     {
-      commandBuffer.executeCommands(static_cast<std::vector<vk::CommandBuffer> const &>(secondaryCommands));
+      vk::CommandBuffer::executeCommands(static_cast<std::vector<vk::CommandBuffer> const &>(secondaryCommands));
     }
 
     auto beginRenderPass(RenderPass<claws::NoDelete> renderpass, Framebuffer<claws::NoDelete> framebuffer, vk::Rect2D renderArea, std::vector<vk::ClearValue> const &clearValues, vk::SubpassContents contents) const
     {
-      commandBuffer.beginRenderPass({renderpass, framebuffer, renderArea, static_cast<uint32_t>(clearValues.size()), clearValues.data()}, contents);
+      vk::CommandBuffer::beginRenderPass({renderpass, framebuffer, renderArea, static_cast<uint32_t>(clearValues.size()), clearValues.data()}, contents);
 
-      return RenderPassExecLock{commandBuffer};
-    }
-
-    auto bindGraphicsPipeline(Pipeline<claws::NoDelete> pipeline) const
-    {
-      commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline);
+      return RenderPassExecLock{*this};
     }
   };
 
@@ -201,6 +219,6 @@ namespace magma
   {
     vk::CommandPoolCreateInfo createInfo{flags, queueFamilyIndex};
 
-    return CommandPool<>{magma::Device<claws::NoDelete>(*this), vk::Device::createCommandPool(createInfo)};
+    return CommandPool<>{{}, magma::Device<claws::NoDelete>(*this), vk::Device::createCommandPool(createInfo)};
   }
 };
