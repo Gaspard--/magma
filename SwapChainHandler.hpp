@@ -42,9 +42,20 @@ namespace magma
   protected:
     Device<claws::NoDelete> device;
     vk::Format format;
-    ~SwapchainImpl() = default;
 
   public:
+    ~SwapchainImpl() = default;
+
+    struct SwapchainDeleter
+    {
+      friend class SwapchainImpl;
+
+      void operator()(SwapchainImpl const &swapchain)
+      {
+	if (swapchain.vkSwapchain)
+	  swapchain.device.destroySwapchainKHR(swapchain.vkSwapchain);
+      }
+    };
     vk::SwapchainKHR vkSwapchain;
 
     template<class CONTAINER>
@@ -82,7 +93,7 @@ namespace magma
     }
 
     // TODO: refactor the fuck out of this.
-    SwapchainImpl(Surface const &surface, Device<claws::NoDelete> device, vk::PhysicalDevice physicalDevice)
+    SwapchainImpl(Surface const &surface, Device<claws::NoDelete> device, vk::PhysicalDevice physicalDevice, claws::Handle<SwapchainImpl, claws::NoDelete> old)
       : device(device)
     {
       constexpr auto preferedFormatRanking =
@@ -90,7 +101,6 @@ namespace magma
 	  ((vulkanFormatGroups::R8G8B8 | vulkanFormatGroups::B8G8R8) & vulkanFormatGroups::Srgb),
 	  ((vulkanFormatGroups::R8G8B8A8 | vulkanFormatGroups::B8G8R8A8) & vulkanFormatGroups::Srgb),
 	  (vulkanFormatGroups::R8G8B8A8 | vulkanFormatGroups::B8G8R8A8 | vulkanFormatGroups::R8G8B8A8 | vulkanFormatGroups::B8G8R8A8)
-
 	};
       auto format(chooseImageFormat(surface, physicalDevice, preferedFormatRanking));
       auto capabilities(physicalDevice.getSurfaceCapabilitiesKHR(surface.vkSurface));
@@ -127,7 +137,7 @@ namespace magma
 					    vk::CompositeAlphaFlagBitsKHR::eOpaque,
 					    presentMode,
 					    true,
-					    nullptr); // old swapchain
+					    old.vkSwapchain); // old swapchain
 
       vkSwapchain = device.createSwapchainKHR(createInfo);
     }
@@ -144,7 +154,10 @@ namespace magma
 
     auto getImageIndex(vk::Semaphore sem, uint64_t timeout, vk::Fence fence) const
     {
-      return device.acquireNextImageKHR(vkSwapchain, timeout, sem, fence);
+      uint32_t index;
+
+      auto result = vkAcquireNextImageKHR(device, vkSwapchain, timeout, sem, fence, &index);
+      return std::make_tuple(vk::Result{result}, index);
     }
 
     auto &raw()
@@ -161,16 +174,10 @@ namespace magma
       swap(vkSwapchain, other.vkSwapchain);
     }
 
-    struct SwapchainDeleter
+    operator bool()
     {
-      friend class SwapchainImpl;
-
-      void operator()(SwapchainImpl const &swapchain)
-      {
-	if (swapchain.vkSwapchain)
-	  swapchain.device.destroySwapchainKHR(swapchain.vkSwapchain);
-      }
-    };
+      return vkSwapchain;
+    }
   };
 
   void swap(SwapchainImpl &lh, SwapchainImpl &rh)

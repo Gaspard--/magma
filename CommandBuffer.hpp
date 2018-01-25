@@ -18,7 +18,7 @@ namespace magma
     constexpr void operator()(ContiguousContainer const &container) const
     {
       if (!container.empty())
-        device.freeCommandBuffers(commandPool, container.size(), container.data());
+	device.freeCommandBuffers(commandPool, container.size(), container.data());
     }
   };
 
@@ -30,9 +30,6 @@ namespace magma
 
   template<class CommandBufferType, class Deleter = CommandBufferGroupDeleter, template <class Type> typename ContiguousContainer = VectorAlias>
   using CommandBufferGroup = claws::GroupHandle<CommandBufferType, ContiguousContainer<vk::CommandBuffer>, Deleter>;
-
-  // template<class CommandBufferType, class Deleter = CommandBufferGroupDeleter, template <class Type> typename ContiguousContainer = VectorAlias>
-  // using CommandBufferGroup = claws::Handle<ContiguousContainer<CommandBufferType>, Deleter>;
 
   class CommandBuffer : protected vk::CommandBuffer
   {
