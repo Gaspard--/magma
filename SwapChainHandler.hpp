@@ -162,7 +162,7 @@ namespace magma
 
     auto &raw()
     {
-      return static_cast<vk::SwapchainKHR &>(vkSwapchain);
+      return (vkSwapchain);
     }
 
     void swap(SwapchainImpl &other)
