@@ -72,6 +72,10 @@ namespace magma
     auto createImageView(vk::ImageViewCreateFlags flags, vk::Image image, vk::ImageViewType type, vk::Format format, vk::ComponentMapping components, vk::ImageSubresourceRange subresourceRange) const;
 
     auto createPipelineLayout(vk::PipelineLayoutCreateFlags flags, std::vector<vk::DescriptorSetLayout> const &setLayouts, std::vector<vk::PushConstantRange> const &pushConstantRanges) const;
+    auto createImage2D(vk::ImageCreateFlags flags, vk::Format format, std::array<uint32_t, 2> extent, vk::SampleCountFlagBits samples, vk::ImageTiling tiling, vk::ImageUsageFlags usage, std::vector<uint32_t> indices, vk::ImageLayout layout) const;
+
+    auto createImage2D(vk::ImageCreateFlags flags, vk::Format format, std::array<uint32_t, 2> extent, vk::SampleCountFlagBits samples, vk::ImageTiling tiling, vk::ImageUsageFlags usage, vk::ImageLayout layout) const;
+
 
     auto createBuffer(vk::BufferCreateFlags flags, vk::DeviceSize size, vk::BufferUsageFlags usage, std::vector<uint32_t> const &queueFamilies) const;
     auto createBuffer(vk::BufferCreateFlags flags, vk::DeviceSize size, vk::BufferUsageFlags usage) const;
