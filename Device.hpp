@@ -82,11 +82,6 @@ namespace magma
 
     auto createBufferView(vk::BufferViewCreateFlags flags, claws::Handle<vk::Buffer, claws::NoDelete> buffer, vk::Format format, vk::DeviceSize offset, vk::DeviceSize size) const;
 
-    auto createBuffer(vk::BufferCreateFlags flags, vk::DeviceSize size, vk::BufferUsageFlags usage, std::vector<uint32_t> const &queueFamilies) const;
-    auto createBuffer(vk::BufferCreateFlags flags, vk::DeviceSize size, vk::BufferUsageFlags usage) const;
-
-    auto createBufferView(vk::BufferViewCreateFlags flags, claws::Handle<vk::Buffer, claws::NoDelete> buffer, vk::Format format, vk::DeviceSize offset, vk::DeviceSize size) const;
-
     using vk::Device::operator bool;
     using vk::Device::operator !;
     
