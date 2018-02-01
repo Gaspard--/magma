@@ -57,10 +57,15 @@ namespace magma
     }
 
     using vk::CommandBuffer::bindVertexBuffers;
-    // void bindVertexBuffer(uint32_t firstBinding, vk::ArrayProxy<vk::Buffer> buffers, vk::ArrayProxy<vk::Buffer> buffer) const
-    // {
-      
-    // }
+
+    template<class Container>
+    void pushConstants(claws::Handle<vk::PipelineLayout, claws::NoDelete> pipelineLayout, vk::ShaderStageFlags shaderStages, uint32_t elemOffset, Container const &data)
+    {
+      constexpr uint32_t elemSize(sizeof(decltype(*data.data())));
+      pushConstants(pipelineLayout, shaderStages, elemOffset * elemSize, static_cast<uint32_t>(elemSize * data.size()), data.data());
+    }
+
+    using vk::CommandBuffer::pushConstants;
   };
 
   class SecondaryCommandBuffer : public CommandBuffer
