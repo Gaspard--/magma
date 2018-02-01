@@ -23,16 +23,17 @@ namespace magma
     return DeviceMemory<>(DeviceMemoryDeleter{magma::Device<claws::NoDelete>(*this)}, vk::Device::allocateMemory({size, typeIndex}));
   }
 
-  inline auto DeviceImpl::selectAndCreateDeviceMemory(vk::PhysicalDevice physicalDevice, vk::DeviceSize size, vk::MemoryPropertyFlagBits memoryFlags) const
+  inline auto DeviceImpl::selectAndCreateDeviceMemory(vk::PhysicalDevice physicalDevice, vk::DeviceSize size, vk::MemoryPropertyFlagBits memoryFlags, uint32_t memoryTypeIndexMask) const
   {
     auto const memProperties(physicalDevice.getMemoryProperties());
-    
-    auto it(std::find_if(memProperties.memoryTypes, memProperties.memoryTypes + memProperties.memoryTypeCount, [&memProperties, size, memoryFlags](auto const &type)
-			 {
-			   return (type.propertyFlags & memoryFlags) && memProperties.memoryHeaps[type.heapIndex].size >= size;
-			 }));
-    if (it == memProperties.memoryTypes + memProperties.memoryTypeCount)
-      throw std::runtime_error("Couldn't find proper memory type");
-    return createDeviceMemory(size, it - memProperties.memoryTypes);
+
+    for (uint32_t i(0u); i < memProperties.memoryTypeCount; ++i)
+      {
+	auto const &type(memProperties.memoryTypes[i]);
+
+	if (((memoryTypeIndexMask >> i) & 1u) && (type.propertyFlags & memoryFlags) && memProperties.memoryHeaps[type.heapIndex].size >= size)
+	  return createDeviceMemory(size, i);
+      }
+    throw std::runtime_error("Couldn't find proper memory type");
   }
 };
