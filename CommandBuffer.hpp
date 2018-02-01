@@ -55,6 +55,12 @@ namespace magma
     {
       vk::CommandBuffer::reset(flags);
     }
+
+    using vk::CommandBuffer::bindVertexBuffers;
+    // void bindVertexBuffer(uint32_t firstBinding, vk::ArrayProxy<vk::Buffer> buffers, vk::ArrayProxy<vk::Buffer> buffer) const
+    // {
+      
+    // }
   };
 
   class SecondaryCommandBuffer : public CommandBuffer
