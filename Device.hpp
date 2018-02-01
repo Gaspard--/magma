@@ -85,7 +85,7 @@ namespace magma
     auto createDeviceMemory(vk::DeviceSize size, uint32_t typeIndex) const;
     auto selectAndCreateDeviceMemory(vk::PhysicalDevice physicalDevice, vk::DeviceSize size, vk::MemoryPropertyFlagBits memoryFlags, uint32_t memoryTypeIndexMask) const;
 
-    auto createDescriptorSetLayout(std::vector<vk::DescriptorSetLayoutBinding> const &bindings) const;
+    auto createDescriptorSetLayout(vk::DescriptorSetLayoutCreateFlags flags, std::vector<vk::DescriptorSetLayoutBinding> const &bindings) const;
 
     using vk::Device::operator bool;
     using vk::Device::operator !;

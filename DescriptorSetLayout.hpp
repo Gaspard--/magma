@@ -18,11 +18,11 @@ namespace magma
   template<class Deleter = DescriptorSetLayoutDeleter>
   using DescriptorSetLayout = claws::Handle<vk::DescriptorSetLayout, Deleter>;
 
-  inline auto DeviceImpl::createDescriptorSetLayout(std::vector<vk::DescriptorSetLayoutBinding> const &bindings) const
+  inline auto DeviceImpl::createDescriptorSetLayout(vk::DescriptorSetLayoutCreateFlags flags, std::vector<vk::DescriptorSetLayoutBinding> const &bindings) const
   {
     return DescriptorSetLayout<>(DescriptorSetLayoutDeleter{magma::Device<claws::NoDelete>(*this)},
-				 vk::Device::createDescriptorSetLayout({{},
+				 vk::Device::createDescriptorSetLayout({flags,
 				       static_cast<uint32_t>(bindings.size()),
-					 bindings.data()}));
+				       bindings.data()}));
   }
 };
