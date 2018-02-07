@@ -42,6 +42,7 @@ namespace magma
   protected:
     Device<claws::NoDelete> device;
     vk::Format format;
+    vk::Extent2D currentExtent;
 
   public:
     ~SwapchainImpl() = default;
@@ -88,6 +89,7 @@ namespace magma
     SwapchainImpl()
       : device(nullptr)
       , format{}
+      , currentExtent{}
       , vkSwapchain(nullptr)
     {
     }
@@ -122,12 +124,14 @@ namespace magma
       if (!(capabilities.supportedUsageFlags & vk::ImageUsageFlagBits::eTransferDst))
 	throw std::runtime_error("Vulkan Swapchain: Mising eTransferDst for clear operation.");
 
+      this->currentExtent = (capabilities.currentExtent == vk::Extent2D{0xFFFFFFFFu, 0xFFFFFFFFu} ? capabilities.maxImageExtent : capabilities.currentExtent); // choose current or biggest extent possible;
+      
       vk::SwapchainCreateInfoKHR createInfo({},
 					    surface.vkSurface,
 					    std::min(std::max((std::size_t)capabilities.minImageCount, 3ul), (std::size_t)capabilities.maxImageCount - (std::size_t)!capabilities.maxImageCount),
 					    format.format,
 					    format.colorSpace,
-					    (capabilities.currentExtent == vk::Extent2D{0xFFFFFFFFu, 0xFFFFFFFFu} ? capabilities.maxImageExtent : capabilities.currentExtent), // choose current or biggest extent possible
+					    this->currentExtent,
 					    1,
 					    vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eColorAttachment,
 					    vk::SharingMode::eExclusive, // next 2 params unused because eExclusive
@@ -140,6 +144,11 @@ namespace magma
 					    old.vkSwapchain); // old swapchain
 
       vkSwapchain = device.createSwapchainKHR(createInfo);
+    }
+
+    auto const &getExtent() const
+    {
+      return this->currentExtent;
     }
 
     auto getImages()
@@ -172,6 +181,7 @@ namespace magma
       swap(device, other.device);
       swap(format, other.format);
       swap(vkSwapchain, other.vkSwapchain);
+      swap(currentExtent, other.currentExtent);
     }
 
     operator bool()
