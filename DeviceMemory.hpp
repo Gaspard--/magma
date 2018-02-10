@@ -23,7 +23,7 @@ namespace magma
     return DeviceMemory<>(DeviceMemoryDeleter{magma::Device<claws::NoDelete>(*this)}, vk::Device::allocateMemory({size, typeIndex}));
   }
 
-  inline auto DeviceImpl::selectAndCreateDeviceMemory(vk::PhysicalDevice physicalDevice, vk::DeviceSize size, vk::MemoryPropertyFlagBits memoryFlags, uint32_t memoryTypeIndexMask) const
+  inline auto DeviceImpl::selectAndCreateDeviceMemory(vk::PhysicalDevice physicalDevice, vk::DeviceSize size, vk::MemoryPropertyFlags memoryFlags, uint32_t memoryTypeIndexMask) const
   {
     auto const memProperties(physicalDevice.getMemoryProperties());
 
