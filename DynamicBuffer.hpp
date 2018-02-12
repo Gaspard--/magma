@@ -62,7 +62,7 @@ namespace magma
 	    auto prev(it);
 
 	    ++it;
-	    for (; it != ranges.end(); prev = ++it)
+	    for (; it != ranges.end(); prev = it++)
 	      {
 		if (prev->end + allocSize <= it->begin)
 		  return ranges.insert(it, {prev->end, prev->end + allocSize})->begin;
