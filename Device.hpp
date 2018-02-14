@@ -83,7 +83,7 @@ namespace magma
     auto createBufferView(vk::BufferViewCreateFlags flags, claws::Handle<vk::Buffer, claws::NoDelete> buffer, vk::Format format, vk::DeviceSize offset, vk::DeviceSize size) const;
 
     auto createDeviceMemory(vk::DeviceSize size, uint32_t typeIndex) const;
-    auto selectAndCreateDeviceMemory(vk::PhysicalDevice physicalDevice, vk::DeviceSize size, vk::MemoryPropertyFlagBits memoryFlags, uint32_t memoryTypeIndexMask) const;
+    auto selectAndCreateDeviceMemory(vk::PhysicalDevice physicalDevice, vk::DeviceSize size, vk::MemoryPropertyFlags memoryFlags, uint32_t memoryTypeIndexMask) const;
 
     auto createDescriptorSetLayout(std::vector<vk::DescriptorSetLayoutBinding> const &bindings) const;
     auto createDescriptorPool(std::uint32_t maxSets, std::vector<vk::DescriptorPoolSize> const &size) const;
