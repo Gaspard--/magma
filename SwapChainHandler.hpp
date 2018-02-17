@@ -110,8 +110,7 @@ namespace magma
 
       this->format = format.format;
 
-      constexpr auto order = {vk::PresentModeKHR::eMailbox,
-			      vk::PresentModeKHR::eFifoRelaxed,
+      constexpr auto order = {vk::PresentModeKHR::eFifoRelaxed,
 			      vk::PresentModeKHR::eFifo};
       auto resultIt(std::find_if(order.begin(), order.end(), [&presentModes](auto presentMode)
 				 {
