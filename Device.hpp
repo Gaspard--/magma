@@ -89,7 +89,7 @@ namespace magma
     using vk::Device::operator !;
     
     template<class... Params>
-    decltype(vk::Device::destroy(std::declval<Params>()...)) destroy(Params &&...) = delete;
+    decltype(std::declval<vk::Device>().destroy(std::declval<Params>()...)) destroy(Params &&...) = delete;
 
     struct DeviceDeleter
     {

@@ -8,7 +8,7 @@
 #ifdef DEBUG_LAYERS
   inline VkResult vkCreateDebugReportCallbackEXT(VkInstance instance, VkDebugReportCallbackCreateInfoEXT const *createInfo, VkAllocationCallbacks const *allocator, VkDebugReportCallbackEXT *callback)
   {
-    static auto func = (PFN_vkCreateDebugReportCallbackEXT) vkGetInstanceProcAddr(instance, "vkCreateDebugReportCallbackEXT");
+    static auto func = reinterpret_cast<PFN_vkCreateDebugReportCallbackEXT>(vkGetInstanceProcAddr(instance, "vkCreateDebugReportCallbackEXT"));
     if (func)
       return func(instance, createInfo, allocator, callback);
     throw std::runtime_error("vulkan: Failed to load vkCreateDebugReportCallbackEXT");
@@ -16,7 +16,7 @@
 
   inline void vkDestroyDebugReportCallbackEXT(VkInstance instance, VkDebugReportCallbackEXT callback, VkAllocationCallbacks const *allocator)
   {
-    static auto func = (PFN_vkDestroyDebugReportCallbackEXT) vkGetInstanceProcAddr(instance, "vkDestroyDebugReportCallbackEXT");
+    static auto func = reinterpret_cast<PFN_vkDestroyDebugReportCallbackEXT>(vkGetInstanceProcAddr(instance, "vkDestroyDebugReportCallbackEXT"));
     if (func)
       return func(instance, callback, allocator);
     throw std::runtime_error("vulkan: Failed to load vkDestroyDebugReportCallbackEXT");
@@ -31,7 +31,7 @@ namespace magma
   template<class... T>
   std::array<char const *, sizeof...(T)> make_const_char_array(T... params)
   {
-    return std::array<char const *, sizeof...(T)>{((const char *)params)...};
+    return std::array<char const *, sizeof...(T)>{static_cast<const char *>(params)...};
   }
 
   class Instance
@@ -99,11 +99,11 @@ namespace magma
 
 	  vk::InstanceCreateInfo instanceCreateInfo({}, nullptr,
 #ifdef DEBUG_LAYERS
-						    validationLayers.size(), validationLayers.data(),
+						    static_cast<uint32_t>(validationLayers.size()), validationLayers.data(),
 #else
 						    0, nullptr,
 #endif
-						    extensions.size(), extensions.data());
+						    static_cast<uint32_t>(extensions.size()), extensions.data());
 
 	  return vk::createInstance(instanceCreateInfo);
 	}(std::forward<std::vector<char const *>>(extensions)))

@@ -98,20 +98,19 @@ namespace magma
     SwapchainImpl(Surface const &surface, Device<claws::NoDelete> device, vk::PhysicalDevice physicalDevice, claws::Handle<SwapchainImpl, claws::NoDelete> old)
       : device(device)
     {
-      constexpr auto preferedFormatRanking =
-	{
+      constexpr std::array<magma::FormatGroup, 3> preferedFormatRanking
+      {{
 	  ((vulkanFormatGroups::R8G8B8 | vulkanFormatGroups::B8G8R8) & vulkanFormatGroups::Srgb),
-	  ((vulkanFormatGroups::R8G8B8A8 | vulkanFormatGroups::B8G8R8A8) & vulkanFormatGroups::Srgb),
-	  (vulkanFormatGroups::R8G8B8A8 | vulkanFormatGroups::B8G8R8A8 | vulkanFormatGroups::R8G8B8A8 | vulkanFormatGroups::B8G8R8A8)
-	};
+	    ((vulkanFormatGroups::R8G8B8A8 | vulkanFormatGroups::B8G8R8A8) & vulkanFormatGroups::Srgb),
+	    (vulkanFormatGroups::R8G8B8A8 | vulkanFormatGroups::B8G8R8A8 | vulkanFormatGroups::R8G8B8A8 | vulkanFormatGroups::B8G8R8A8)
+	    }};
       auto format(chooseImageFormat(surface, physicalDevice, preferedFormatRanking));
       auto capabilities(physicalDevice.getSurfaceCapabilitiesKHR(surface.vkSurface));
       auto presentModes(physicalDevice.getSurfacePresentModesKHR(surface.vkSurface));
 
       this->format = format.format;
 
-      constexpr auto order = {vk::PresentModeKHR::eFifoRelaxed,
-			      vk::PresentModeKHR::eFifo};
+      constexpr std::array<vk::PresentModeKHR, 2> order{{vk::PresentModeKHR::eFifoRelaxed, vk::PresentModeKHR::eFifo}};
       auto resultIt(std::find_if(order.begin(), order.end(), [&presentModes](auto presentMode)
 				 {
 				   return (std::find(presentModes.begin(), presentModes.end(), presentMode) != presentModes.end());
@@ -127,7 +126,7 @@ namespace magma
       
       vk::SwapchainCreateInfoKHR createInfo({},
 					    surface.vkSurface,
-					    std::min(std::max((std::size_t)capabilities.minImageCount, 3ul), (std::size_t)capabilities.maxImageCount - (std::size_t)!capabilities.maxImageCount),
+					    std::min(std::max(capabilities.minImageCount, 3u), capabilities.maxImageCount - !capabilities.maxImageCount),
 					    format.format,
 					    format.colorSpace,
 					    this->currentExtent,
@@ -189,7 +188,7 @@ namespace magma
     }
   };
 
-  void swap(SwapchainImpl &lh, SwapchainImpl &rh)
+  inline void swap(SwapchainImpl &lh, SwapchainImpl &rh)
   {
     lh.swap(rh);
   }
