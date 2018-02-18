@@ -108,7 +108,7 @@ namespace magma
       stages.insert(stages.end(), tesselationStages.begin(), tesselationStages.end());
       stageCount = static_cast<uint32_t>(stages.size());
       pStages = stages.data();
-      this->pTessellationState = tesselationState;
+      this->pTessellationState = &tesselationState;
     }
   };
   
