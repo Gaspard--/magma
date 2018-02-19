@@ -18,7 +18,7 @@ namespace magma
     constexpr void operator()(ContiguousContainer const &container) const
     {
       if (!container.empty())
-	device.freeCommandBuffers(commandPool, container.size(), container.data());
+	device.freeCommandBuffers(commandPool, static_cast<uint32_t>(container.size()), container.data());
     }
   };
 

@@ -2,6 +2,7 @@
 
 #include <functional>
 #include <cassert>
+#include <optional>
 
 namespace magma
 {

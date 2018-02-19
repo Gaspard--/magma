@@ -5,111 +5,113 @@
 #include "claws/ArrayOps.hpp"
 #include "claws/IteratorUtil.hpp"
 
-struct FormatGroup
+namespace magma
 {
-  static constexpr uint32_t format_count{(uint32_t)vk::Format::eAstc12x12SrgbBlock + 1u}; // 184 + 1
+  struct FormatGroup
+  {
+    static constexpr uint32_t format_count{static_cast<uint32_t>(vk::Format::eAstc12x12SrgbBlock) + 1u}; // 184 + 1
 
-  std::array<uint64_t, (format_count >> 6u) + 1u> bits;
+    std::array<uint64_t, (format_count >> 6u) + 1u> bits;
 
 #define FORMAT_GROUP_OP(OP)						\
-  constexpr FormatGroup &operator OP##=(FormatGroup const &other) noexcept \
-  {									\
-    using namespace claws::arrayOps;					\
-    bits OP##= other.bits;						\
-    return *this;							\
-  };									\
+    constexpr FormatGroup &operator OP##=(FormatGroup const &other) noexcept \
+    {									\
+      using namespace claws::arrayOps;					\
+      bits OP##= other.bits;						\
+      return *this;							\
+    };									\
 									\
-  constexpr FormatGroup operator OP(FormatGroup const &other) const noexcept \
-  {									\
-    FormatGroup result{*this};						\
+    constexpr FormatGroup operator OP(FormatGroup const &other) const noexcept \
+    {									\
+      FormatGroup result{*this};					\
 									\
-    result OP##= other;							\
-    return result;							\
-  }
+      result OP##= other;						\
+      return result;							\
+    }
 
-  FORMAT_GROUP_OP(|);
-  FORMAT_GROUP_OP(&);
-  FORMAT_GROUP_OP(^);
+    FORMAT_GROUP_OP(|);
+    FORMAT_GROUP_OP(&);
+    FORMAT_GROUP_OP(^);
 
-  constexpr FormatGroup() noexcept
-  : bits{}
-  {
-  }
-
-  constexpr FormatGroup(FormatGroup const &other) noexcept
-  : bits(other.bits)
-  {
-  }
-
-  constexpr FormatGroup operator=(FormatGroup const &other) noexcept
-  {
-    this->bits = other.bits;
-    return *this;
-  }
-
-  template<class CONTAINER>
-  constexpr FormatGroup(CONTAINER const &formats) noexcept
-  : FormatGroup{}
-  {
-    for (auto format : formats)
-      (*this)[format] = true;
-  }
-
-  constexpr FormatGroup operator~() const noexcept
-  {
-    using namespace claws::arrayOps;
-    FormatGroup result{*this};
-
-    result.bits = ~result.bits;
-    return result;
-  }
-
-  constexpr bool operator[](uint32_t format) const noexcept
-  {
-    return (bits[format >> 6] >> (format & 63)) & 1u;
-  }
-
-  constexpr bool operator[](vk::Format format) const noexcept
-  {
-    return (*this)[(uint32_t)format];
-  }
-
-  constexpr auto operator[](uint32_t format) noexcept
-  {
-    struct BoolProxy
+    constexpr FormatGroup() noexcept
+    : bits{}
     {
-      FormatGroup &formatGroup;
-      uint32_t format;
+    }
 
-      constexpr BoolProxy &operator=(uint32_t val)
+    constexpr FormatGroup(FormatGroup const &other) noexcept
+    : bits(other.bits)
+    {
+    }
+
+    constexpr FormatGroup operator=(FormatGroup const &other) noexcept
+    {
+      this->bits = other.bits;
+      return *this;
+    }
+
+    template<class CONTAINER>
+    constexpr FormatGroup(CONTAINER const &formats) noexcept
+    : FormatGroup{}
+    {
+      for (auto format : formats)
+	(*this)[format] = true;
+    }
+
+    constexpr FormatGroup operator~() const noexcept
+    {
+      using namespace claws::arrayOps;
+      FormatGroup result{*this};
+
+      result.bits = ~result.bits;
+      return result;
+    }
+
+    constexpr bool operator[](uint32_t format) const noexcept
+    {
+      return (bits[format >> 6] >> (format & 63)) & 1u;
+    }
+
+    constexpr bool operator[](vk::Format format) const noexcept
+    {
+      return (*this)[static_cast<uint32_t>(format)];
+    }
+
+    constexpr auto operator[](uint32_t format) noexcept
+    {
+      struct BoolProxy
       {
-	val = !!val;
-	// x ^ y == (x | y) & ~(x & y)
-	// a ^ (~a & b) = (a | (~a & b)) & ~(a & (~a & b)) = (a | ~a & b) = a | b
-	// a ^ (a & b) = (a | (a & b)) & ~(a & (a & b)) = (a | (a & b)) & (~a | ~a | ~b) = (a | (a & b)) & ~(a & b) = a & ~(a & b) = a & ~b
-	formatGroup.bits[format >> 6] ^= (val * ~(uint64_t)0 ^ formatGroup.bits[format >> 6]) & ((uint64_t)1 << (format & 63));
-	return *this;
-      }
+	FormatGroup &formatGroup;
+	uint32_t format;
 
-      constexpr operator bool()
-      {
-	return (formatGroup.bits[format >> 6] >> (format & 63)) & 1u;
-      }
-    };
+	constexpr BoolProxy &operator=(uint32_t val)
+	{
+	  val = !!val;
+	  // x ^ y == (x | y) & ~(x & y)
+	  // a ^ (~a & b) = (a | (~a & b)) & ~(a & (~a & b)) = (a | ~a & b) = a | b
+	  // a ^ (a & b) = (a | (a & b)) & ~(a & (a & b)) = (a | (a & b)) & (~a | ~a | ~b) = (a | (a & b)) & ~(a & b) = a & ~(a & b) = a & ~b
+	  formatGroup.bits[format >> 6] ^= (val * ~static_cast<uint64_t>(0) ^ formatGroup.bits[format >> 6]) & (1ul << (format & 63));
+	  return *this;
+	}
 
-    return BoolProxy{*this, format};
-  }
+	constexpr operator bool()
+	{
+	  return (formatGroup.bits[format >> 6] >> (format & 63)) & 1u;
+	}
+      };
 
-  constexpr auto operator[](vk::Format format) noexcept
-  {
-    return (*this)[(uint32_t)format];
-  }
+      return BoolProxy{*this, format};
+    }
 
-  operator bool() const noexcept
-  {
-    return bits != (decltype(bits){});
-  }
-};
+    constexpr auto operator[](vk::Format format) noexcept
+    {
+      return (*this)[static_cast<uint32_t>(format)];
+    }
+
+    operator bool() const noexcept
+    {
+      return bits != (decltype(bits){});
+    }
+  };
 
 namespace vulkanFormatGroups
 {
@@ -117,7 +119,7 @@ namespace vulkanFormatGroups
   {
     FormatGroup result{};
 
-    for (uint32_t i((uint32_t)min); i != (uint32_t)max + 1u; ++i)
+    for (auto i(static_cast<uint32_t>(min)); i != static_cast<uint32_t>(max) + 1u; ++i)
       result[i] = true;
     return result;
   }
@@ -126,7 +128,7 @@ namespace vulkanFormatGroups
   {
     FormatGroup result{};
 
-    for (uint32_t i((uint32_t)min); i <= (uint32_t)max; i += skip)
+    for (auto i(static_cast<uint32_t>(min)); i <= static_cast<uint32_t>(max); i += skip)
       result[i] = true;
     return result;
   }
@@ -184,4 +186,5 @@ namespace vulkanFormatGroups
   FORMAT_GROUP_64BIT_FORMAT(R64G64);
   FORMAT_GROUP_64BIT_FORMAT(R64G64B64);
   FORMAT_GROUP_64BIT_FORMAT(R64G64B64A64);
+}
 }

@@ -16,10 +16,10 @@ namespace magma
     out.reserve(input.tellg() / sizeof(uint32_t));
     input.seekg(0, std::ios::beg);
     while (input.read(data.data(), data.size()))
-      out.emplace_back(std::accumulate(data.rbegin(), data.rend(), static_cast<uint32_t>(0u),
+      out.emplace_back(std::accumulate(data.rbegin(), data.rend(), 0u,
 				       [](uint32_t last, char next)
 				       {
-					 return (static_cast<uint32_t>(last) << CHAR_BIT) + static_cast<uint32_t>(static_cast<uint8_t>(next));
+					 return (last << CHAR_BIT) + static_cast<uint32_t>(static_cast<uint8_t>(next));
 				       }));
     return out;
   }
@@ -41,7 +41,7 @@ namespace magma
   template<class Container>
   inline auto DeviceImpl::createShaderModule(Container const &code) const
   {
-    return ShaderModule<>(std::move(ShaderModuleDestructor{magma::Device<claws::NoDelete>(*this)}), vk::Device::createShaderModule(vk::ShaderModuleCreateInfo{{}, code.size() * sizeof(uint32_t), code.data()}));
+    return ShaderModule<>(ShaderModuleDestructor{magma::Device<claws::NoDelete>(*this)}, vk::Device::createShaderModule(vk::ShaderModuleCreateInfo{{}, code.size() * sizeof(uint32_t), code.data()}));
   }
 
   inline auto DeviceImpl::createShaderModule(std::istream &input) const
