@@ -87,6 +87,9 @@ namespace magma
 
     auto createDescriptorSetLayout(std::vector<vk::DescriptorSetLayoutBinding> const &bindings) const;
     auto createDescriptorPool(std::uint32_t maxSets, std::vector<vk::DescriptorPoolSize> const &size) const;
+    auto createDescriptorSets(vk::DescriptorPool descriptorPool, std::vector<vk::DescriptorSetLayout> const &setLayout) const;
+    auto createDescriptorSets(vk::DescriptorPool descriptorPool, std::vector<vk::DescriptorSetLayout> const &setLayout, std::vector<vk::WriteDescriptorSet> const &wDescriptorSet) const;
+    auto createDescriptorSets(vk::DescriptorPool descriptorPool, std::vector<vk::DescriptorSetLayout> const &setLayout, std::vector<vk::CopyDescriptorSet> const &cDescriptorSet) const;
 
     using vk::Device::operator bool;
     using vk::Device::operator !;
