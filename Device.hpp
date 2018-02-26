@@ -89,7 +89,7 @@ namespace magma
     auto createDescriptorPool(std::uint32_t maxSets, std::vector<vk::DescriptorPoolSize> const &size) const;
     auto createDescriptorSets(vk::DescriptorPool descriptorPool, std::vector<vk::DescriptorSetLayout> const &setLayout) const;
 
-    auto createSampler(vk::Filter magFilter, vk::Filter minFilter, vk::Sampler::MipmapMode mipmapMode, vk::Sampler::AddressMode adressModeU, vk::Sampler::AddressMode adressModeV, vk::Sampler::AddressMode adressModeW, float mipLoadBias, vk::Bool32 anisotropyEnable, float maxAnisotropy, vk::Bool32 compareEnable, vk::CompareOp compareOp, float minLod, float maxLod, vk::BorderColor borderColor, vk::Bool32 unnormalizedCoordinates) const;
+    auto createSampler(vk::SamplerCreateFlags flag, vk::Filter magFilter, vk::Filter minFilter, vk::SamplerMipmapMode mipmapMode, vk::SamplerAddressMode adressModeU, vk::SamplerAddressMode adressModeV, vk::SamplerAddressMode adressModeW, float mipLoadBias, vk::Bool32 anisotropyEnable, float maxAnisotropy, vk::Bool32 compareEnable, vk::CompareOp compareOp, float minLod, float maxLod, vk::BorderColor borderColor, vk::Bool32 unnormalizedCoordinates) const;
 
     using vk::Device::operator bool;
     using vk::Device::operator !;
