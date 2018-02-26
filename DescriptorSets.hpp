@@ -26,29 +26,5 @@ namespace magma
 				  static_cast<uint32_t>(setLayout.size()),
 				  setLayout.data()}));
   }
-
-  inline auto DeviceImpl::createDescriptorSets(vk::DescriptorPool descriptorPool, std::vector<vk::DescriptorSetLayout> const &setLayout, std::vector<vk::WriteDescriptorSet> const &wDescriptorSet) const
-  {
-    auto descriptorSet = DescriptorSets<>(DescriptorSetsDeleter{magma::Device<claws::NoDelete>(*this), descriptorPool},
-					  vk::Device::allocateDescriptorSets({descriptorPool,
-						static_cast<uint32_t>(setLayout.size()),
-						setLayout.data()}));
-    vk::Device::updateDescriptorSets(static_cast<uint32_t>(wDescriptorSet.size()),
-				    wDescriptorSet.data(),
-				    0, nullptr);
-    return descriptorSet;
-  }
-  
-  inline auto DeviceImpl::createDescriptorSets(vk::DescriptorPool descriptorPool, std::vector<vk::DescriptorSetLayout> const &setLayout, std::vector<vk::CopyDescriptorSet> const &cDescriptorSet) const
-  {
-    auto descriptorSet = DescriptorSets<>(DescriptorSetsDeleter{magma::Device<claws::NoDelete>(*this), descriptorPool},
-					  vk::Device::allocateDescriptorSets({descriptorPool,
-						static_cast<uint32_t>(setLayout.size()),
-						setLayout.data()}));
-    vk::Device::updateDescriptorSets(0, nullptr,
-				    static_cast<uint32_t>(cDescriptorSet.size()),
-				    cDescriptorSet.data());
-    return descriptorSet;
-  }
   
 };
