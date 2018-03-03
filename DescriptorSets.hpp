@@ -4,7 +4,7 @@
 
 namespace magma
 {
-  struct DescriptorSetDeleter
+  struct DescriptorSetsDeleter
   {
     Device<claws::NoDelete> device;
     vk::DescriptorPool descriptorPool;
@@ -16,17 +16,35 @@ namespace magma
     }
   };
 
-  template<class Deleter = DescriptorSetDeleter>
-  using DescriptorSets = claws::Handle<std::vector<vk::DescriptorSet>, Deleter>;
-
   class DescriptorSet : protected vk::DescriptorSet
   {
   protected:
+    Device<claws::NoDelete> device;
 
   public:
     DescriptorSet(vk::DescriptorSet descriptorSet)
       : vk::DescriptorSet(descriptorSet)
+      , device(nullptr)
     {
+    }
+
+    
+    void updateDescriptorSets(vk::DescriptorSet srcSet, uint32_t srcBinding, uint32_t srcArrayElement, uint32_t dstBinding, uint32_t dstArrayElement, uint32_t descriptorCount)
+    {
+      vk::CopyDescriptorSet info{ srcSet, srcBinding, srcArrayElement,
+    	  *this, dstBinding, dstArrayElement, descriptorCount
+    	  };
+      device.updateDescriptorSets(0, nullptr, 1, &info);
+    }
+
+    void updateDescriptorSets(uint32_t dstBinding, uint32_t dstArrayElement, uint32_t descriptorCount, vk::DescriptorType descriptorType, vk::DescriptorImageInfo const *pImageInfo, vk::DescriptorBufferInfo const *pBufferInfo, vk::BufferView const *pTexelBufferView)
+    {
+      vk::WriteDescriptorSet info{ *this, dstBinding, dstArrayElement,
+	  descriptorCount, descriptorType,
+	  // pImageInfo.data(), pBufferInfo.data(), pTexelBufferView.data()
+	  pImageInfo, pBufferInfo, pTexelBufferView
+    	  };
+      device.updateDescriptorSets(1, &info, 0, nullptr);
     }
 
     auto &raw()
@@ -35,6 +53,9 @@ namespace magma
     }
 
   };
+
+  template<class Deleter = DescriptorSetsDeleter>
+  using DescriptorSets = claws::GroupHandle<DescriptorSet, std::vector<vk::DescriptorSet>, Deleter>;
 
   class DescriptorPoolImpl : public vk::DescriptorPool
   {
@@ -67,6 +88,17 @@ namespace magma
 	  descriptorSetLayout.data()};
       return DescriptorSets<>({device, *this}, device.allocateDescriptorSets(info));
     }
+
+    void updateDescriptorSets(std::vector<vk::WriteDescriptorSet> writeDescriptorSets)
+    {
+      device.updateDescriptorSets(static_cast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, nullptr);
+    }
+
+    void updateDescriptorSets(std::vector<vk::CopyDescriptorSet> copyDescriptorSets)
+    {
+      device.updateDescriptorSets(0, nullptr, static_cast<uint32_t>(copyDescriptorSets.size()), copyDescriptorSets.data());
+    }
+
 
     void swap(DescriptorPoolImpl &other)
     {
