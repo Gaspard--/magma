@@ -89,6 +89,11 @@ namespace magma
     auto createDescriptorPool(std::uint32_t maxSets, std::vector<vk::DescriptorPoolSize> const &size) const;
     auto createDescriptorSets(vk::DescriptorPool descriptorPool, std::vector<vk::DescriptorSetLayout> const &setLayout) const;
 
+    template<class T, std::enable_if_t<std::is_same_v<typename T::value_type, vk::WriteDescriptorSet>> * = nullptr>
+    void updateDescriptorSets(T const &writeDescriptorSets);
+    template<class T, std::enable_if_t<std::is_same_v<typename T::value_type, vk::CopyDescriptorSet>> * = nullptr>
+    void updateDescriptorSets(T const &copyDescriptorSets);
+
     auto createSampler(vk::Filter magFilter, vk::Filter minFilter, vk::SamplerMipmapMode mipmapMode, vk::SamplerAddressMode adressModeU, vk::SamplerAddressMode adressModeV, vk::SamplerAddressMode adressModeW, float mipLoadBias, vk::Bool32 anisotropyEnable, float maxAnisotropy, vk::Bool32 compareEnable, vk::CompareOp compareOp, float minLod, float maxLod, vk::BorderColor borderColor, vk::Bool32 unnormalizedCoordinates) const;
 
     using vk::Device::operator bool;
