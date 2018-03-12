@@ -56,6 +56,8 @@ namespace magma
       vk::CommandBuffer::reset(flags);
     }
 
+    using vk::CommandBuffer::pipelineBarrier;
+
     using vk::CommandBuffer::bindVertexBuffers;
 
     template<class Container>
@@ -230,3 +232,4 @@ namespace magma
     return CommandPool<>{{}, magma::Device<claws::NoDelete>(*this), vk::Device::createCommandPool(createInfo)};
   }
 };
+

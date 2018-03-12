@@ -41,7 +41,6 @@ namespace magma
     {
       vk::WriteDescriptorSet info{ *this, dstBinding, dstArrayElement,
 	  descriptorCount, descriptorType,
-	  // pImageInfo.data(), pBufferInfo.data(), pTexelBufferView.data()
 	  pImageInfo, pBufferInfo, pTexelBufferView
     	  };
       device.updateDescriptorSets(1, &info, 0, nullptr);
