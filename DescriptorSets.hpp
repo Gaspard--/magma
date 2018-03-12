@@ -20,13 +20,13 @@ namespace magma
   template<class Deleter = DescriptorSetsDeleter>
   using DescriptorSets = claws::GroupHandle<vk::DescriptorSet, std::vector<vk::DescriptorSet>, Deleter>;
 
-  template<class T, std::enable_if_t<std::is_same_v<typename T::value_type, vk::WriteDescriptorSet>> * = nullptr>
+  template<class T, std::enable_if_t<std::is_same_v<typename T::value_type, vk::WriteDescriptorSet>> *>
   void DeviceImpl::updateDescriptorSets(T const &writeDescriptorSets)
   {
     vk::Device::updateDescriptorSets(static_cast<uint32_t>(writeDescriptorSets.size()), writeDescriptorSets.data(), 0, nullptr);
   }
 
-  template<class T, std::enable_if_t<std::is_same_v<typename T::value_type, vk::CopyDescriptorSet>> * = nullptr>
+  template<class T, std::enable_if_t<std::is_same_v<typename T::value_type, vk::CopyDescriptorSet>> *>
   void DeviceImpl::updateDescriptorSets(T const &copyDescriptorSets)
   {
     vk::Device::updateDescriptorSets(0, nullptr, static_cast<uint32_t>(copyDescriptorSets.size()), copyDescriptorSets.data());
