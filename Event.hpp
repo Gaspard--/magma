@@ -20,6 +20,6 @@ namespace magma
   
   inline auto DeviceImpl::createEvent(void) const
   {
-    Event<>(EventDeleter{magma::Device<claws::NoDelete>(*this)}, vk::Device::createEvent({{}}));
+    Event<>(EventDeleter{magma::Device<claws::NoDelete>(*this)}, vk::Device::createEvent({}));
   }
 };
