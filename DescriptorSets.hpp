@@ -4,7 +4,6 @@
 
 namespace magma
 {
-
   struct DescriptorSetsDeleter
   {
     Device<claws::NoDelete> device;
@@ -13,7 +12,7 @@ namespace magma
     void operator()(std::vector<vk::DescriptorSet> const &descriptorSets) const
     {
       if (device)
-	device.freeDescriptorSets(descriptorPool, descriptorSets);
+        device.freeDescriptorSets(descriptorPool, descriptorSets);
     }
   };
 
@@ -38,18 +37,17 @@ namespace magma
     Device<claws::NoDelete> device;
 
     ~DescriptorPoolImpl() = default;
+
   public:
     DescriptorPoolImpl()
       : vk::DescriptorPool(nullptr)
       , device(nullptr)
-    {
-    }
+    {}
 
     DescriptorPoolImpl(Device<claws::NoDelete> device, vk::DescriptorPool descriptorPool)
       : vk::DescriptorPool(descriptorPool)
       , device(device)
-    {
-    }
+    {}
 
     void reset(vk::DescriptorPoolResetFlags flags) const
     {
@@ -58,9 +56,7 @@ namespace magma
 
     auto allocateDescriptorSets(std::vector<vk::DescriptorSetLayout> const &descriptorSetLayout)
     {
-      vk::DescriptorSetAllocateInfo info{*this,
-	  static_cast<uint32_t>(descriptorSetLayout.size()),
-	  descriptorSetLayout.data()};
+      vk::DescriptorSetAllocateInfo info{*this, static_cast<uint32_t>(descriptorSetLayout.size()), descriptorSetLayout.data()};
       return DescriptorSets<>({device, *this}, device.allocateDescriptorSets(info));
     }
 
@@ -78,8 +74,8 @@ namespace magma
 
       void operator()(DescriptorPoolImpl const &descriptorPool) const
       {
-	if (descriptorPool)
-	  descriptorPool.device.destroyDescriptorPool(descriptorPool);
+        if (descriptorPool)
+          descriptorPool.device.destroyDescriptorPool(descriptorPool);
       }
     };
   };
@@ -92,13 +88,11 @@ namespace magma
   template<class Deleter = DescriptorPoolImpl::DescriptorPoolDeleter>
   using DescriptorPool = claws::Handle<DescriptorPoolImpl, Deleter>;
 
-
   inline auto DeviceImpl::createDescriptorPool(std::uint32_t maxSets, std::vector<vk::DescriptorPoolSize> const &size) const
   {
-    return DescriptorPool<>({}, magma::Device<claws::NoDelete>(*this),
-			    vk::Device::createDescriptorPool({vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet,
-				  maxSets,
-				  static_cast<uint32_t>(size.size()),
-				  size.data()}));
+    return DescriptorPool<>({},
+                            magma::Device<claws::NoDelete>(*this),
+                            vk::Device::createDescriptorPool(
+                              {vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet, maxSets, static_cast<uint32_t>(size.size()), size.data()}));
   }
 };

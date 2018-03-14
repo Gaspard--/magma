@@ -11,13 +11,13 @@ namespace magma
     void operator()(vk::Event const &event) const
     {
       if (device)
-	device.destroyEvent(event);
+        device.destroyEvent(event);
     }
   };
 
   template<class Deleter = EventDeleter>
   using Event = claws::Handle<vk::Event, Deleter>;
-  
+
   inline auto DeviceImpl::createEvent(void) const
   {
     Event<>(EventDeleter{magma::Device<claws::NoDelete>(*this)}, vk::Device::createEvent({}));

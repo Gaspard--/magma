@@ -18,7 +18,8 @@ namespace magma
     }
   };
 
-  struct EmptyList{
+  struct EmptyList
+  {
     constexpr auto data() const noexcept
     {
       return nullptr;
@@ -52,18 +53,18 @@ namespace magma
     static constexpr auto convertToTuple(T const &arg)
     {
       if constexpr (decltype(isList(arg))::value)
-		     return std::make_tuple(static_cast<uint32_t>(arg.size()), arg.data());
+        return std::make_tuple(static_cast<uint32_t>(arg.size()), arg.data());
       else
-	return std::make_tuple(arg);
+        return std::make_tuple(arg);
     }
 
     template<class... Args, size_t... indices>
     static constexpr auto makeImpl(std::tuple<Args...> args, std::index_sequence<indices...>)
     {
       if constexpr (!EmptyFlags)
-		     return CreateInfo(std::get<indices>(args)...);
+        return CreateInfo(std::get<indices>(args)...);
       else
-	return CreateInfo({}, std::get<indices>(args)...);
+        return CreateInfo({}, std::get<indices>(args)...);
     }
 
   public:
@@ -73,7 +74,7 @@ namespace magma
       auto tuple(std::tuple_cat(convertToTuple(args)...));
 
       return makeImpl(tuple, std::make_index_sequence<std::tuple_size<decltype(tuple)>::value>());
-    }    
+    }
   };
 
   template<class T>

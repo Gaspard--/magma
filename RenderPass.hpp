@@ -13,17 +13,17 @@ namespace magma
 
     RenderPassCreateInfo(vk::RenderPassCreateFlags flags)
       : flags(flags)
-    {
-    }
+    {}
 
     operator vk::RenderPassCreateInfo() const
     {
-      return {
-	  flags,
-	  static_cast<uint32_t>(attachements.size()), attachements.data(),
-	  static_cast<uint32_t>(subPasses.size()), subPasses.data(),
-	  static_cast<uint32_t>(subPassDependencies.size()), subPassDependencies.data()
-	};
+      return {flags,
+              static_cast<uint32_t>(attachements.size()),
+              attachements.data(),
+              static_cast<uint32_t>(subPasses.size()),
+              subPasses.data(),
+              static_cast<uint32_t>(subPassDependencies.size()),
+              subPassDependencies.data()};
     }
 
     RenderPassCreateInfo() = default;
