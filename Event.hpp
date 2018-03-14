@@ -18,8 +18,8 @@ namespace magma
   template<class Deleter = EventDeleter>
   using Event = claws::Handle<vk::Event, Deleter>;
   
-  inline auto DeviceImpl::createEvent(vk::EventCreateFlags flags) const
+  inline auto DeviceImpl::createEvent(void) const
   {
-    Event<>(EventDeleter{magma::Device<claws::NoDelete>(*this)}, vk::Device::createEvent({flags}));
+    Event<>(EventDeleter{magma::Device<claws::NoDelete>(*this)}, vk::Device::createEvent({{}}));
   }
 };
