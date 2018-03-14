@@ -11,7 +11,7 @@ namespace magma
     void operator()(vk::Semaphore const &fence) const
     {
       if (device)
-	device.destroySemaphore(fence);
+        device.destroySemaphore(fence);
     }
   };
 

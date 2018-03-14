@@ -11,7 +11,7 @@ namespace magma
     void operator()(vk::DescriptorSetLayout const &descriptorSetLayout) const
     {
       if (device)
-	device.destroyDescriptorSetLayout(descriptorSetLayout);
+        device.destroyDescriptorSetLayout(descriptorSetLayout);
     }
   };
 
@@ -21,8 +21,6 @@ namespace magma
   inline auto DeviceImpl::createDescriptorSetLayout(std::vector<vk::DescriptorSetLayoutBinding> const &bindings) const
   {
     return DescriptorSetLayout<>(DescriptorSetLayoutDeleter{magma::Device<claws::NoDelete>(*this)},
-				 vk::Device::createDescriptorSetLayout({{},
-				       static_cast<uint32_t>(bindings.size()),
-					 bindings.data()}));
+                                 vk::Device::createDescriptorSetLayout({{}, static_cast<uint32_t>(bindings.size()), bindings.data()}));
   }
 };

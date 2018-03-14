@@ -18,7 +18,7 @@ namespace magma
     constexpr void operator()(ContiguousContainer const &container) const
     {
       if (!container.empty())
-	device.freeCommandBuffers(commandPool, static_cast<uint32_t>(container.size()), container.data());
+        device.freeCommandBuffers(commandPool, static_cast<uint32_t>(container.size()), container.data());
     }
   };
 
@@ -28,18 +28,16 @@ namespace magma
   template<class Type>
   using VectorAlias = std::vector<Type>;
 
-  template<class CommandBufferType, class Deleter = CommandBufferGroupDeleter, template <class Type> typename ContiguousContainer = VectorAlias>
+  template<class CommandBufferType, class Deleter = CommandBufferGroupDeleter, template<class Type> typename ContiguousContainer = VectorAlias>
   using CommandBufferGroup = claws::GroupHandle<CommandBufferType, ContiguousContainer<vk::CommandBuffer>, Deleter>;
 
   class CommandBuffer : protected vk::CommandBuffer
   {
   protected:
-
   public:
     CommandBuffer(vk::CommandBuffer commandBuffer)
       : vk::CommandBuffer(commandBuffer)
-    {
-    }
+    {}
 
     auto &raw()
     {
@@ -61,7 +59,10 @@ namespace magma
     using vk::CommandBuffer::bindVertexBuffers;
 
     template<class Container>
-    void pushConstants(claws::Handle<vk::PipelineLayout, claws::NoDelete> pipelineLayout, vk::ShaderStageFlags shaderStages, uint32_t elemOffset, Container const &data)
+    void pushConstants(claws::Handle<vk::PipelineLayout, claws::NoDelete> pipelineLayout,
+                       vk::ShaderStageFlags shaderStages,
+                       uint32_t elemOffset,
+                       Container const &data)
     {
       constexpr uint32_t elemSize(sizeof(decltype(*data.data())));
       pushConstants(pipelineLayout, shaderStages, elemOffset * elemSize, static_cast<uint32_t>(elemSize * data.size()), data.data());
@@ -75,15 +76,14 @@ namespace magma
   public:
     using CommandBuffer::CommandBuffer;
 
-    void begin(vk::CommandBufferUsageFlags flags,
-	       vk::CommandBufferInheritanceInfo const &pInheritanceInfo) const
+    void begin(vk::CommandBufferUsageFlags flags, vk::CommandBufferInheritanceInfo const &pInheritanceInfo) const
     {
       vk::CommandBuffer::begin(vk::CommandBufferBeginInfo{flags, &pInheritanceInfo});
     }
   };
 
   class PrimaryCommandBuffer;
-  
+
   struct RenderPassExecLock
   {
   protected:
@@ -94,6 +94,7 @@ namespace magma
     RenderPassExecLock(vk::CommandBuffer commandBuffer)
       : commandBuffer(commandBuffer)
     {}
+
   public:
     RenderPassExecLock()
       : commandBuffer(nullptr)
@@ -151,7 +152,11 @@ namespace magma
       vk::CommandBuffer::executeCommands(static_cast<std::vector<vk::CommandBuffer> const &>(secondaryCommands));
     }
 
-    auto beginRenderPass(RenderPass<claws::NoDelete> renderpass, Framebuffer<claws::NoDelete> framebuffer, vk::Rect2D renderArea, std::vector<vk::ClearValue> const &clearValues, vk::SubpassContents contents) const
+    auto beginRenderPass(RenderPass<claws::NoDelete> renderpass,
+                         Framebuffer<claws::NoDelete> framebuffer,
+                         vk::Rect2D renderArea,
+                         std::vector<vk::ClearValue> const &clearValues,
+                         vk::SubpassContents contents) const
     {
       vk::CommandBuffer::beginRenderPass({renderpass, framebuffer, renderArea, static_cast<uint32_t>(clearValues.size()), clearValues.data()}, contents);
 
@@ -165,18 +170,17 @@ namespace magma
     Device<claws::NoDelete> device;
 
     ~CommandPoolImpl() = default;
+
   public:
     CommandPoolImpl()
       : vk::CommandPool(nullptr)
       , device(nullptr)
-    {
-    }
+    {}
 
     CommandPoolImpl(Device<claws::NoDelete> device, vk::CommandPool commandPool)
       : vk::CommandPool(commandPool)
       , device(device)
-    {
-    }
+    {}
 
     void reset(vk::CommandPoolResetFlags flags)
     {
@@ -211,8 +215,8 @@ namespace magma
 
       void operator()(CommandPoolImpl const &commandPool) const
       {
-	if (commandPool)
-	  commandPool.device.destroyCommandPool(commandPool);
+        if (commandPool)
+          commandPool.device.destroyCommandPool(commandPool);
       }
     };
   };
@@ -232,4 +236,3 @@ namespace magma
     return CommandPool<>{{}, magma::Device<claws::NoDelete>(*this), vk::Device::createCommandPool(createInfo)};
   }
 };
-

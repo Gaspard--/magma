@@ -13,23 +13,25 @@ namespace magma
   public:
     DeviceImpl()
       : vk::Device(nullptr)
-    {
-    }
+    {}
 
-    DeviceImpl(vk::PhysicalDevice physicalDevice, std::vector<vk::DeviceQueueCreateInfo> const &deviceQueueCreateInfos, std::vector<char const *> const &extensions = {})
-      : vk::Device([](vk::PhysicalDevice physicalDevice, std::vector<vk::DeviceQueueCreateInfo> const &deviceQueueCreateInfos, std::vector<char const *> const &extensions)
-		   {
-		     vk::DeviceCreateInfo deviceCreateInfo {
-		       {},
-			 static_cast<unsigned>(deviceQueueCreateInfos.size()), deviceQueueCreateInfos.data(),
-			   0, nullptr,
-			   static_cast<unsigned>(extensions.size()), extensions.data()
-			   };
-		   
-		     return physicalDevice.createDevice(deviceCreateInfo);
-		   }(physicalDevice, deviceQueueCreateInfos, extensions))
-    {
-    }
+    DeviceImpl(vk::PhysicalDevice physicalDevice,
+               std::vector<vk::DeviceQueueCreateInfo> const &deviceQueueCreateInfos,
+               std::vector<char const *> const &extensions = {})
+      : vk::Device([](vk::PhysicalDevice physicalDevice,
+                      std::vector<vk::DeviceQueueCreateInfo> const &deviceQueueCreateInfos,
+                      std::vector<char const *> const &extensions) {
+        vk::DeviceCreateInfo deviceCreateInfo{{},
+                                              static_cast<unsigned>(deviceQueueCreateInfos.size()),
+                                              deviceQueueCreateInfos.data(),
+                                              0,
+                                              nullptr,
+                                              static_cast<unsigned>(extensions.size()),
+                                              extensions.data()};
+
+        return physicalDevice.createDevice(deviceCreateInfo);
+      }(physicalDevice, deviceQueueCreateInfos, extensions))
+    {}
 
     using vk::Device::Device;
 
@@ -47,7 +49,11 @@ namespace magma
 
     auto createShaderModule(std::istream &input) const;
 
-    auto createFramebuffer(claws::Handle<vk::RenderPass, claws::NoDelete> renderPass, std::vector<vk::ImageView> const &attachements, uint32_t width, uint32_t height, uint32_t layers) const;
+    auto createFramebuffer(claws::Handle<vk::RenderPass, claws::NoDelete> renderPass,
+                           std::vector<vk::ImageView> const &attachements,
+                           uint32_t width,
+                           uint32_t height,
+                           uint32_t layers) const;
 
     auto createFence(vk::FenceCreateFlags flags) const;
 
@@ -69,21 +75,44 @@ namespace magma
 
     auto getRenderAreaGranularity(claws::Handle<vk::RenderPass, claws::NoDelete> renderPass) const;
 
-    auto createImageView(vk::ImageViewCreateFlags flags, vk::Image image, vk::ImageViewType type, vk::Format format, vk::ComponentMapping components, vk::ImageSubresourceRange subresourceRange) const;
+    auto createImageView(vk::ImageViewCreateFlags flags,
+                         vk::Image image,
+                         vk::ImageViewType type,
+                         vk::Format format,
+                         vk::ComponentMapping components,
+                         vk::ImageSubresourceRange subresourceRange) const;
 
-    auto createPipelineLayout(vk::PipelineLayoutCreateFlags flags, std::vector<vk::DescriptorSetLayout> const &setLayouts, std::vector<vk::PushConstantRange> const &pushConstantRanges) const;
-    auto createImage2D(vk::ImageCreateFlags flags, vk::Format format, std::array<uint32_t, 2> extent, vk::SampleCountFlagBits samples, vk::ImageTiling tiling, vk::ImageUsageFlags usage, std::vector<uint32_t> indices, vk::ImageLayout layout) const;
+    auto createPipelineLayout(vk::PipelineLayoutCreateFlags flags,
+                              std::vector<vk::DescriptorSetLayout> const &setLayouts,
+                              std::vector<vk::PushConstantRange> const &pushConstantRanges) const;
+    auto createImage2D(vk::ImageCreateFlags flags,
+                       vk::Format format,
+                       std::array<uint32_t, 2> extent,
+                       vk::SampleCountFlagBits samples,
+                       vk::ImageTiling tiling,
+                       vk::ImageUsageFlags usage,
+                       std::vector<uint32_t> indices,
+                       vk::ImageLayout layout) const;
 
-    auto createImage2D(vk::ImageCreateFlags flags, vk::Format format, std::array<uint32_t, 2> extent, vk::SampleCountFlagBits samples, vk::ImageTiling tiling, vk::ImageUsageFlags usage, vk::ImageLayout layout) const;
-
+    auto createImage2D(vk::ImageCreateFlags flags,
+                       vk::Format format,
+                       std::array<uint32_t, 2> extent,
+                       vk::SampleCountFlagBits samples,
+                       vk::ImageTiling tiling,
+                       vk::ImageUsageFlags usage,
+                       vk::ImageLayout layout) const;
 
     auto createBuffer(vk::BufferCreateFlags flags, vk::DeviceSize size, vk::BufferUsageFlags usage, std::vector<uint32_t> const &queueFamilies) const;
     auto createBuffer(vk::BufferCreateFlags flags, vk::DeviceSize size, vk::BufferUsageFlags usage) const;
 
-    auto createBufferView(vk::BufferViewCreateFlags flags, claws::Handle<vk::Buffer, claws::NoDelete> buffer, vk::Format format, vk::DeviceSize offset, vk::DeviceSize size) const;
+    auto createBufferView(
+      vk::BufferViewCreateFlags flags, claws::Handle<vk::Buffer, claws::NoDelete> buffer, vk::Format format, vk::DeviceSize offset, vk::DeviceSize size) const;
 
     auto createDeviceMemory(vk::DeviceSize size, uint32_t typeIndex) const;
-    auto selectAndCreateDeviceMemory(vk::PhysicalDevice physicalDevice, vk::DeviceSize size, vk::MemoryPropertyFlags memoryFlags, uint32_t memoryTypeIndexMask) const;
+    auto selectAndCreateDeviceMemory(vk::PhysicalDevice physicalDevice,
+                                     vk::DeviceSize size,
+                                     vk::MemoryPropertyFlags memoryFlags,
+                                     uint32_t memoryTypeIndexMask) const;
 
     auto createDescriptorSetLayout(std::vector<vk::DescriptorSetLayoutBinding> const &bindings) const;
     auto createDescriptorPool(std::uint32_t maxSets, std::vector<vk::DescriptorPoolSize> const &size) const;
@@ -94,11 +123,25 @@ namespace magma
     template<class T, std::enable_if_t<std::is_same_v<typename T::value_type, vk::CopyDescriptorSet>> * = nullptr>
     void updateDescriptorSets(T const &copyDescriptorSets);
 
-    auto createSampler(vk::Filter magFilter, vk::Filter minFilter, vk::SamplerMipmapMode mipmapMode, vk::SamplerAddressMode adressModeU, vk::SamplerAddressMode adressModeV, vk::SamplerAddressMode adressModeW, float mipLoadBias, vk::Bool32 anisotropyEnable, float maxAnisotropy, vk::Bool32 compareEnable, vk::CompareOp compareOp, float minLod, float maxLod, vk::BorderColor borderColor, vk::Bool32 unnormalizedCoordinates) const;
+    auto createSampler(vk::Filter magFilter,
+                       vk::Filter minFilter,
+                       vk::SamplerMipmapMode mipmapMode,
+                       vk::SamplerAddressMode adressModeU,
+                       vk::SamplerAddressMode adressModeV,
+                       vk::SamplerAddressMode adressModeW,
+                       float mipLoadBias,
+                       vk::Bool32 anisotropyEnable,
+                       float maxAnisotropy,
+                       vk::Bool32 compareEnable,
+                       vk::CompareOp compareOp,
+                       float minLod,
+                       float maxLod,
+                       vk::BorderColor borderColor,
+                       vk::Bool32 unnormalizedCoordinates) const;
 
     using vk::Device::operator bool;
-    using vk::Device::operator !;
-    
+    using vk::Device::operator!;
+
     template<class... Params>
     decltype(std::declval<vk::Device>().destroy(std::declval<Params>()...)) destroy(Params &&...) = delete;
 
@@ -106,8 +149,8 @@ namespace magma
     {
       void operator()(vk::Device const &device) const
       {
-	if (device)
-	  device.destroy();
+        if (device)
+          device.destroy();
       }
     };
   };

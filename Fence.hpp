@@ -11,10 +11,10 @@ namespace magma
     void operator()(vk::Fence const &fence) const
     {
       if (device)
-	device.destroyFence(fence);
+        device.destroyFence(fence);
     }
   };
-  
+
   template<class Deleter = FenceDeleter>
   using Fence = claws::Handle<vk::Fence, Deleter>;
 

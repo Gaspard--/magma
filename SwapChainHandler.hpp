@@ -16,19 +16,17 @@ namespace magma
     Surface()
       : instance(nullptr)
       , vkSurface(nullptr)
-    {
-    }
+    {}
 
     Surface(Instance &instance, vk::SurfaceKHR vkSurface)
       : instance(instance.vkInstance)
       , vkSurface(vkSurface)
-    {
-    }
+    {}
 
     ~Surface()
     {
       if (instance)
-	instance.destroySurfaceKHR(vkSurface);
+        instance.destroySurfaceKHR(vkSurface);
     }
 
     bool isQueueFamilySuitable(vk::PhysicalDevice physicalDevice, uint32_t queueIndex)
@@ -53,8 +51,8 @@ namespace magma
 
       void operator()(SwapchainImpl const &swapchain)
       {
-	if (swapchain.vkSwapchain)
-	  swapchain.device.destroySwapchainKHR(swapchain.vkSwapchain);
+        if (swapchain.vkSwapchain)
+          swapchain.device.destroySwapchainKHR(swapchain.vkSwapchain);
       }
     };
     vk::SwapchainKHR vkSwapchain;
@@ -65,25 +63,19 @@ namespace magma
       auto formats(physicalDevice.getSurfaceFormatsKHR(surface.vkSurface));
 
       if (formats[0].format == vk::Format::eUndefined)
-	{
-	  formats[0].format = vk::Format::eR8G8B8Srgb; // yay!
-	  return formats[0];
-	}
+        {
+          formats[0].format = vk::Format::eR8G8B8Srgb; // yay!
+          return formats[0];
+        }
       FormatGroup possibillities = ([&formatChoices](FormatGroup possibillities) {
-	  for (auto const &pick : formatChoices)
-	    {
-	      if (auto best = (possibillities & pick))
-		return best;
-	    }
-	  throw std::runtime_error("Vulkan Swapchain: No suitable format found.");
-	})(FormatGroup{claws::containerView(formats.begin(), formats.end(), [](auto const &format)
-					    {
-					      return format.format;
-					    })});
-      return *std::find_if(formats.begin(), formats.end(), [&possibillities](auto const &format)
-			   {
-			     return possibillities[format.format];
-			   });
+        for (auto const &pick : formatChoices)
+          {
+            if (auto best = (possibillities & pick))
+              return best;
+          }
+        throw std::runtime_error("Vulkan Swapchain: No suitable format found.");
+      })(FormatGroup{claws::containerView(formats.begin(), formats.end(), [](auto const &format) { return format.format; })});
+      return *std::find_if(formats.begin(), formats.end(), [&possibillities](auto const &format) { return possibillities[format.format]; });
     }
 
     SwapchainImpl()
@@ -91,19 +83,16 @@ namespace magma
       , format{}
       , currentExtent{}
       , vkSwapchain(nullptr)
-    {
-    }
+    {}
 
     // TODO: refactor the fuck out of this.
     SwapchainImpl(Surface const &surface, Device<claws::NoDelete> device, vk::PhysicalDevice physicalDevice, claws::Handle<SwapchainImpl, claws::NoDelete> old)
       : device(device)
     {
-      constexpr std::array<magma::FormatGroup, 3> preferedFormatRanking
-      {{
-	  ((vulkanFormatGroups::R8G8B8 | vulkanFormatGroups::B8G8R8) & vulkanFormatGroups::Srgb),
-	    ((vulkanFormatGroups::R8G8B8A8 | vulkanFormatGroups::B8G8R8A8) & vulkanFormatGroups::Srgb),
-	    (vulkanFormatGroups::R8G8B8A8 | vulkanFormatGroups::B8G8R8A8 | vulkanFormatGroups::R8G8B8A8 | vulkanFormatGroups::B8G8R8A8)
-	    }};
+      constexpr std::array<magma::FormatGroup, 3> preferedFormatRanking{
+        {((vulkanFormatGroups::R8G8B8 | vulkanFormatGroups::B8G8R8) & vulkanFormatGroups::Srgb),
+         ((vulkanFormatGroups::R8G8B8A8 | vulkanFormatGroups::B8G8R8A8) & vulkanFormatGroups::Srgb),
+         (vulkanFormatGroups::R8G8B8A8 | vulkanFormatGroups::B8G8R8A8 | vulkanFormatGroups::R8G8B8A8 | vulkanFormatGroups::B8G8R8A8)}};
       auto format(chooseImageFormat(surface, physicalDevice, preferedFormatRanking));
       auto capabilities(physicalDevice.getSurfaceCapabilitiesKHR(surface.vkSurface));
       auto presentModes(physicalDevice.getSurfacePresentModesKHR(surface.vkSurface));
@@ -111,35 +100,36 @@ namespace magma
       this->format = format.format;
 
       constexpr std::array<vk::PresentModeKHR, 2> order{{vk::PresentModeKHR::eFifoRelaxed, vk::PresentModeKHR::eFifo}};
-      auto resultIt(std::find_if(order.begin(), order.end(), [&presentModes](auto presentMode)
-				 {
-				   return (std::find(presentModes.begin(), presentModes.end(), presentMode) != presentModes.end());
-				 }));
+      auto resultIt(std::find_if(order.begin(), order.end(), [&presentModes](auto presentMode) {
+        return (std::find(presentModes.begin(), presentModes.end(), presentMode) != presentModes.end());
+      }));
       if (resultIt == order.end())
-	throw std::runtime_error("Vulkan Swapchain: No suitable presentation mode found.");
+        throw std::runtime_error("Vulkan Swapchain: No suitable presentation mode found.");
       auto presentMode(*resultIt);
 
       if (!(capabilities.supportedUsageFlags & vk::ImageUsageFlagBits::eTransferDst))
-	throw std::runtime_error("Vulkan Swapchain: Mising eTransferDst for clear operation.");
+        throw std::runtime_error("Vulkan Swapchain: Mising eTransferDst for clear operation.");
 
-      this->currentExtent = (capabilities.currentExtent == vk::Extent2D{0xFFFFFFFFu, 0xFFFFFFFFu} ? capabilities.maxImageExtent : capabilities.currentExtent); // choose current or biggest extent possible;
-      
+      this->currentExtent =
+        (capabilities.currentExtent == vk::Extent2D{0xFFFFFFFFu, 0xFFFFFFFFu} ? capabilities.maxImageExtent
+                                                                              : capabilities.currentExtent); // choose current or biggest extent possible;
+
       vk::SwapchainCreateInfoKHR createInfo({},
-					    surface.vkSurface,
-					    std::min(std::max(capabilities.minImageCount, 3u), capabilities.maxImageCount - !capabilities.maxImageCount),
-					    format.format,
-					    format.colorSpace,
-					    this->currentExtent,
-					    1,
-					    vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eColorAttachment,
-					    vk::SharingMode::eExclusive, // next 2 params unused because eExclusive
-					    0, // unused
-					    nullptr, // unused
-					    capabilities.currentTransform,
-					    vk::CompositeAlphaFlagBitsKHR::eOpaque,
-					    presentMode,
-					    true,
-					    old.vkSwapchain); // old swapchain
+                                            surface.vkSurface,
+                                            std::min(std::max(capabilities.minImageCount, 3u), capabilities.maxImageCount - !capabilities.maxImageCount),
+                                            format.format,
+                                            format.colorSpace,
+                                            this->currentExtent,
+                                            1,
+                                            vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eColorAttachment,
+                                            vk::SharingMode::eExclusive, // next 2 params unused because eExclusive
+                                            0,                           // unused
+                                            nullptr,                     // unused
+                                            capabilities.currentTransform,
+                                            vk::CompositeAlphaFlagBitsKHR::eOpaque,
+                                            presentMode,
+                                            true,
+                                            old.vkSwapchain); // old swapchain
 
       vkSwapchain = device.createSwapchainKHR(createInfo);
     }

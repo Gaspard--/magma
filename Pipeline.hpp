@@ -43,36 +43,36 @@ namespace magma
   // rasterisation & color attachements
   // - pColorBlendState is a pointer to an instance of the VkPipelineColorBlendStateCreateInfo structure, and is ignored if the pipeline has rasterization disabled or if the subpass of the render pass the pipeline is created against does not use any color attachments.
 
-
   class GraphicsPipelineConfig : public vk::GraphicsPipelineCreateInfo
   {
     std::vector<vk::PipelineShaderStageCreateInfo> stages;
+
   public:
     GraphicsPipelineConfig(vk::PipelineCreateFlagBits flags,
-			   std::vector<vk::PipelineShaderStageCreateInfo> &&stages,
-			   vk::PipelineVertexInputStateCreateInfo const &vertexInputState,
-			   vk::PipelineInputAssemblyStateCreateInfo const &inputAssemblyState,
-			   vk::PipelineRasterizationStateCreateInfo const &rasterizationState,
-			   PipelineLayout<claws::NoDelete> const &layout,
-			   RenderPass<claws::NoDelete> renderPass,
-			   uint32_t subpass)
+                           std::vector<vk::PipelineShaderStageCreateInfo> &&stages,
+                           vk::PipelineVertexInputStateCreateInfo const &vertexInputState,
+                           vk::PipelineInputAssemblyStateCreateInfo const &inputAssemblyState,
+                           vk::PipelineRasterizationStateCreateInfo const &rasterizationState,
+                           PipelineLayout<claws::NoDelete> const &layout,
+                           RenderPass<claws::NoDelete> renderPass,
+                           uint32_t subpass)
       : vk::GraphicsPipelineCreateInfo(flags,
-				       static_cast<uint32_t>(stages.size()),
-				       nullptr,
-				       &vertexInputState,
-				       &inputAssemblyState,
-				       nullptr,
-				       nullptr,
-				       &rasterizationState,
-				       nullptr,
-				       nullptr,
-				       nullptr,
-				       nullptr,
-				       layout,
-				       renderPass,
-				       subpass,
-				       nullptr,
-				       -1)
+                                       static_cast<uint32_t>(stages.size()),
+                                       nullptr,
+                                       &vertexInputState,
+                                       &inputAssemblyState,
+                                       nullptr,
+                                       nullptr,
+                                       &rasterizationState,
+                                       nullptr,
+                                       nullptr,
+                                       nullptr,
+                                       nullptr,
+                                       layout,
+                                       renderPass,
+                                       subpass,
+                                       nullptr,
+                                       -1)
       , stages(std::move(stages))
     {
       this->pStages = this->stages.data();
@@ -84,19 +84,26 @@ namespace magma
       this->pMultisampleState = &multisampleState;
     }
 
-    void addRasteringDepthStencilInfo(vk::PipelineViewportStateCreateInfo const &viewportState, vk::PipelineMultisampleStateCreateInfo const &multisampleState, vk::PipelineDepthStencilStateCreateInfo const &depthStencilState)
+    void addRasteringDepthStencilInfo(vk::PipelineViewportStateCreateInfo const &viewportState,
+                                      vk::PipelineMultisampleStateCreateInfo const &multisampleState,
+                                      vk::PipelineDepthStencilStateCreateInfo const &depthStencilState)
     {
       this->pDepthStencilState = &depthStencilState;
       addRasteringInfo(viewportState, multisampleState);
     }
 
-    void addRasteringColorAttachementDepthStencilInfo(vk::PipelineViewportStateCreateInfo const &viewportState, vk::PipelineMultisampleStateCreateInfo const &multisampleState, vk::PipelineDepthStencilStateCreateInfo const &depthStencilState, vk::PipelineColorBlendStateCreateInfo const &colorBlendState)
+    void addRasteringColorAttachementDepthStencilInfo(vk::PipelineViewportStateCreateInfo const &viewportState,
+                                                      vk::PipelineMultisampleStateCreateInfo const &multisampleState,
+                                                      vk::PipelineDepthStencilStateCreateInfo const &depthStencilState,
+                                                      vk::PipelineColorBlendStateCreateInfo const &colorBlendState)
     {
       this->pColorBlendState = &colorBlendState;
       addRasteringDepthStencilInfo(viewportState, multisampleState, depthStencilState);
     }
 
-    void addRasteringColorAttachementInfo(vk::PipelineViewportStateCreateInfo const &viewportState, vk::PipelineMultisampleStateCreateInfo const &multisampleState, vk::PipelineColorBlendStateCreateInfo const &colorBlendState)
+    void addRasteringColorAttachementInfo(vk::PipelineViewportStateCreateInfo const &viewportState,
+                                          vk::PipelineMultisampleStateCreateInfo const &multisampleState,
+                                          vk::PipelineColorBlendStateCreateInfo const &colorBlendState)
     {
       this->pColorBlendState = &colorBlendState;
       addRasteringInfo(viewportState, multisampleState);
@@ -111,7 +118,7 @@ namespace magma
       this->pTessellationState = &tesselationState;
     }
   };
-  
+
   struct PipelineDeleter
   {
     Device<claws::NoDelete> device;
@@ -119,7 +126,7 @@ namespace magma
     void operator()(vk::Pipeline const &pipeline) const
     {
       if (device)
-	device.destroyPipeline(pipeline);
+        device.destroyPipeline(pipeline);
     }
   };
 
