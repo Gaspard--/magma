@@ -96,6 +96,8 @@ namespace magma
 
     auto createSampler(vk::Filter magFilter, vk::Filter minFilter, vk::SamplerMipmapMode mipmapMode, vk::SamplerAddressMode adressModeU, vk::SamplerAddressMode adressModeV, vk::SamplerAddressMode adressModeW, float mipLoadBias, vk::Bool32 anisotropyEnable, float maxAnisotropy, vk::Bool32 compareEnable, vk::CompareOp compareOp, float minLod, float maxLod, vk::BorderColor borderColor, vk::Bool32 unnormalizedCoordinates) const;
 
+    auto createEvent(vk::EventCreateFlags flags) const;
+
     using vk::Device::operator bool;
     using vk::Device::operator !;
     
