@@ -139,6 +139,8 @@ namespace magma
                        vk::BorderColor borderColor,
                        vk::Bool32 unnormalizedCoordinates) const;
 
+    auto createEvent(void) const;
+
     using vk::Device::operator bool;
     using vk::Device::operator!;
 

@@ -58,6 +58,10 @@ namespace magma
 
     using vk::CommandBuffer::bindVertexBuffers;
 
+    using vk::CommandBuffer::setEvent;
+    using vk::CommandBuffer::resetEvent;
+    using vk::CommandBuffer::waitEvents;
+
     template<class Container>
     void pushConstants(claws::handle<vk::PipelineLayout, claws::no_delete> pipelineLayout,
                        vk::ShaderStageFlags shaderStages,
