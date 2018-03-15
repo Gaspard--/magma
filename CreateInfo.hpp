@@ -84,7 +84,7 @@ namespace magma
   }
 
   template<class T, class Deleter>
-  constexpr auto asListRef(claws::Handle<T, Deleter> const &val) noexcept
+  constexpr auto asListRef(claws::handle<T, Deleter> const &val) noexcept
   {
     return SingleValListRef<T>{val};
   }

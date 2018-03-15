@@ -6,7 +6,7 @@ namespace magma
 {
   struct BufferViewDeleter
   {
-    Device<claws::NoDelete> device;
+    Device<claws::no_delete> device;
 
     void operator()(vk::BufferView const &bufferView) const
     {
@@ -16,11 +16,11 @@ namespace magma
   };
 
   template<class Deleter = BufferViewDeleter>
-  using BufferView = claws::Handle<vk::BufferView, Deleter>;
+  using BufferView = claws::handle<vk::BufferView, Deleter>;
 
   inline auto DeviceImpl::createBufferView(
-    vk::BufferViewCreateFlags flags, claws::Handle<vk::Buffer, claws::NoDelete> buffer, vk::Format format, vk::DeviceSize offset, vk::DeviceSize size) const
+    vk::BufferViewCreateFlags flags, claws::handle<vk::Buffer, claws::no_delete> buffer, vk::Format format, vk::DeviceSize offset, vk::DeviceSize size) const
   {
-    return BufferView<>(BufferViewDeleter{magma::Device<claws::NoDelete>(*this)}, vk::Device::createBufferView({flags, buffer, format, offset, size}));
+    return BufferView<>(BufferViewDeleter{magma::Device<claws::no_delete>(*this)}, vk::Device::createBufferView({flags, buffer, format, offset, size}));
   }
 };

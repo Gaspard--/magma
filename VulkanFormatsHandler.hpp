@@ -16,7 +16,7 @@ namespace magma
 #define FORMAT_GROUP_OP(OP)                                                                                                                                    \
   constexpr FormatGroup &operator OP##=(FormatGroup const &other) noexcept                                                                                     \
   {                                                                                                                                                            \
-    using namespace claws::arrayOps;                                                                                                                           \
+    using namespace claws::array_ops;                                                                                                                          \
     bits OP## = other.bits;                                                                                                                                    \
     return *this;                                                                                                                                              \
   };                                                                                                                                                           \
@@ -57,7 +57,7 @@ namespace magma
 
     constexpr FormatGroup operator~() const noexcept
     {
-      using namespace claws::arrayOps;
+      using namespace claws::array_ops;
       FormatGroup result{*this};
 
       result.bits = ~result.bits;

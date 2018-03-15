@@ -6,7 +6,7 @@ namespace magma
 {
   struct ImageDeleter
   {
-    Device<claws::NoDelete> device;
+    Device<claws::no_delete> device;
 
     void operator()(vk::Image const &image) const
     {
@@ -16,7 +16,7 @@ namespace magma
   };
 
   template<class Deleter = ImageDeleter>
-  using Image = claws::Handle<vk::Image, Deleter>;
+  using Image = claws::handle<vk::Image, Deleter>;
 
   inline auto DeviceImpl::createImage2D(vk::ImageCreateFlags flags,
                                         vk::Format format,
@@ -27,7 +27,7 @@ namespace magma
                                         std::vector<uint32_t> indices,
                                         vk::ImageLayout layout) const
   {
-    return Image<>(ImageDeleter{magma::Device<claws::NoDelete>(*this)},
+    return Image<>(ImageDeleter{magma::Device<claws::no_delete>(*this)},
                    vk::Device::createImage({flags,
                                             vk::ImageType::e2D,
                                             format,
@@ -51,7 +51,7 @@ namespace magma
                                         vk::ImageUsageFlags usage,
                                         vk::ImageLayout layout) const
   {
-    return Image<>(ImageDeleter{magma::Device<claws::NoDelete>(*this)},
+    return Image<>(ImageDeleter{magma::Device<claws::no_delete>(*this)},
                    vk::Device::createImage({flags,
                                             vk::ImageType::e2D,
                                             format,

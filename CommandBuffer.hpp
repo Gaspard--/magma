@@ -11,7 +11,7 @@ namespace magma
 {
   struct CommandBufferGroupDeleter
   {
-    Device<claws::NoDelete> device;
+    Device<claws::no_delete> device;
     vk::CommandPool commandPool;
 
     template<class ContiguousContainer>
@@ -29,7 +29,7 @@ namespace magma
   using VectorAlias = std::vector<Type>;
 
   template<class CommandBufferType, class Deleter = CommandBufferGroupDeleter, template<class Type> typename ContiguousContainer = VectorAlias>
-  using CommandBufferGroup = claws::GroupHandle<CommandBufferType, ContiguousContainer<vk::CommandBuffer>, Deleter>;
+  using CommandBufferGroup = claws::group_handle<CommandBufferType, ContiguousContainer<vk::CommandBuffer>, Deleter>;
 
   class CommandBuffer : protected vk::CommandBuffer
   {
@@ -59,7 +59,7 @@ namespace magma
     using vk::CommandBuffer::bindVertexBuffers;
 
     template<class Container>
-    void pushConstants(claws::Handle<vk::PipelineLayout, claws::NoDelete> pipelineLayout,
+    void pushConstants(claws::handle<vk::PipelineLayout, claws::no_delete> pipelineLayout,
                        vk::ShaderStageFlags shaderStages,
                        uint32_t elemOffset,
                        Container const &data)
@@ -126,7 +126,7 @@ namespace magma
       commandBuffer.draw(vertexCount, instanceCount, firstVertex, firstInstance);
     }
 
-    void bindGraphicsPipeline(Pipeline<claws::NoDelete> pipeline) const
+    void bindGraphicsPipeline(Pipeline<claws::no_delete> pipeline) const
     {
       commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline);
     }
@@ -152,8 +152,8 @@ namespace magma
       vk::CommandBuffer::executeCommands(static_cast<std::vector<vk::CommandBuffer> const &>(secondaryCommands));
     }
 
-    auto beginRenderPass(RenderPass<claws::NoDelete> renderpass,
-                         Framebuffer<claws::NoDelete> framebuffer,
+    auto beginRenderPass(RenderPass<claws::no_delete> renderpass,
+                         Framebuffer<claws::no_delete> framebuffer,
                          vk::Rect2D renderArea,
                          std::vector<vk::ClearValue> const &clearValues,
                          vk::SubpassContents contents) const
@@ -167,7 +167,7 @@ namespace magma
   class CommandPoolImpl : public vk::CommandPool
   {
   protected:
-    Device<claws::NoDelete> device;
+    Device<claws::no_delete> device;
 
     ~CommandPoolImpl() = default;
 
@@ -177,7 +177,7 @@ namespace magma
       , device(nullptr)
     {}
 
-    CommandPoolImpl(Device<claws::NoDelete> device, vk::CommandPool commandPool)
+    CommandPoolImpl(Device<claws::no_delete> device, vk::CommandPool commandPool)
       : vk::CommandPool(commandPool)
       , device(device)
     {}
@@ -227,12 +227,12 @@ namespace magma
   }
 
   template<class Deleter = CommandPoolImpl::CommandPoolDeleter>
-  using CommandPool = claws::Handle<CommandPoolImpl, Deleter>;
+  using CommandPool = claws::handle<CommandPoolImpl, Deleter>;
 
   inline auto DeviceImpl::createCommandPool(vk::CommandPoolCreateFlags flags, uint32_t queueFamilyIndex) const
   {
     vk::CommandPoolCreateInfo createInfo{flags, queueFamilyIndex};
 
-    return CommandPool<>{{}, magma::Device<claws::NoDelete>(*this), vk::Device::createCommandPool(createInfo)};
+    return CommandPool<>{{}, magma::Device<claws::no_delete>(*this), vk::Device::createCommandPool(createInfo)};
   }
 };

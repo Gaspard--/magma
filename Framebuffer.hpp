@@ -7,7 +7,7 @@ namespace magma
 {
   struct FramebufferDeleter
   {
-    Device<claws::NoDelete> device;
+    Device<claws::no_delete> device;
 
     void operator()(vk::Framebuffer const &framebuffer) const
     {
@@ -17,12 +17,12 @@ namespace magma
   };
 
   template<class Deleter = FramebufferDeleter>
-  using Framebuffer = claws::Handle<vk::Framebuffer, Deleter>;
+  using Framebuffer = claws::handle<vk::Framebuffer, Deleter>;
 
   inline auto DeviceImpl::createFramebuffer(
-    RenderPass<claws::NoDelete> renderPass, std::vector<vk::ImageView> const &attachements, uint32_t width, uint32_t height, uint32_t layers) const
+    RenderPass<claws::no_delete> renderPass, std::vector<vk::ImageView> const &attachements, uint32_t width, uint32_t height, uint32_t layers) const
   {
-    return magma::Framebuffer<>(FramebufferDeleter{magma::Device<claws::NoDelete>(*this)},
+    return magma::Framebuffer<>(FramebufferDeleter{magma::Device<claws::no_delete>(*this)},
                                 vk::Device::createFramebuffer(
                                   {{}, renderPass, static_cast<uint32_t>(attachements.size()), attachements.data(), width, height, layers}));
   }

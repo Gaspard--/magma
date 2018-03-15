@@ -49,7 +49,7 @@ namespace magma
 
     auto createShaderModule(std::istream &input) const;
 
-    auto createFramebuffer(claws::Handle<vk::RenderPass, claws::NoDelete> renderPass,
+    auto createFramebuffer(claws::handle<vk::RenderPass, claws::no_delete> renderPass,
                            std::vector<vk::ImageView> const &attachements,
                            uint32_t width,
                            uint32_t height,
@@ -73,7 +73,7 @@ namespace magma
 
     auto createRenderPass(vk::RenderPassCreateInfo const &renderPassCreateInfo) const;
 
-    auto getRenderAreaGranularity(claws::Handle<vk::RenderPass, claws::NoDelete> renderPass) const;
+    auto getRenderAreaGranularity(claws::handle<vk::RenderPass, claws::no_delete> renderPass) const;
 
     auto createImageView(vk::ImageViewCreateFlags flags,
                          vk::Image image,
@@ -106,7 +106,7 @@ namespace magma
     auto createBuffer(vk::BufferCreateFlags flags, vk::DeviceSize size, vk::BufferUsageFlags usage) const;
 
     auto createBufferView(
-      vk::BufferViewCreateFlags flags, claws::Handle<vk::Buffer, claws::NoDelete> buffer, vk::Format format, vk::DeviceSize offset, vk::DeviceSize size) const;
+      vk::BufferViewCreateFlags flags, claws::handle<vk::Buffer, claws::no_delete> buffer, vk::Format format, vk::DeviceSize offset, vk::DeviceSize size) const;
 
     auto createDeviceMemory(vk::DeviceSize size, uint32_t typeIndex) const;
     auto selectAndCreateDeviceMemory(vk::PhysicalDevice physicalDevice,
@@ -161,5 +161,5 @@ namespace magma
   }
 
   template<class Deleter = DeviceImpl::DeviceDeleter>
-  using Device = claws::Handle<DeviceImpl, Deleter>;
+  using Device = claws::handle<DeviceImpl, Deleter>;
 };

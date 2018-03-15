@@ -6,7 +6,7 @@ namespace magma
 {
   struct FenceDeleter
   {
-    Device<claws::NoDelete> device;
+    Device<claws::no_delete> device;
 
     void operator()(vk::Fence const &fence) const
     {
@@ -16,10 +16,10 @@ namespace magma
   };
 
   template<class Deleter = FenceDeleter>
-  using Fence = claws::Handle<vk::Fence, Deleter>;
+  using Fence = claws::handle<vk::Fence, Deleter>;
 
   inline auto DeviceImpl::createFence(vk::FenceCreateFlags flags) const
   {
-    return Fence<>(FenceDeleter{magma::Device<claws::NoDelete>(*this)}, vk::Device::createFence({flags}));
+    return Fence<>(FenceDeleter{magma::Device<claws::no_delete>(*this)}, vk::Device::createFence({flags}));
   }
 };

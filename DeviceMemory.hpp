@@ -6,7 +6,7 @@ namespace magma
 {
   struct DeviceMemoryDeleter
   {
-    Device<claws::NoDelete> device;
+    Device<claws::no_delete> device;
 
     void operator()(vk::DeviceMemory const &fence) const
     {
@@ -16,11 +16,11 @@ namespace magma
   };
 
   template<class Deleter = DeviceMemoryDeleter>
-  using DeviceMemory = claws::Handle<vk::DeviceMemory, Deleter>;
+  using DeviceMemory = claws::handle<vk::DeviceMemory, Deleter>;
 
   inline auto DeviceImpl::createDeviceMemory(vk::DeviceSize size, uint32_t typeIndex) const
   {
-    return DeviceMemory<>(DeviceMemoryDeleter{magma::Device<claws::NoDelete>(*this)}, vk::Device::allocateMemory({size, typeIndex}));
+    return DeviceMemory<>(DeviceMemoryDeleter{magma::Device<claws::no_delete>(*this)}, vk::Device::allocateMemory({size, typeIndex}));
   }
 
   inline auto DeviceImpl::selectAndCreateDeviceMemory(vk::PhysicalDevice physicalDevice,

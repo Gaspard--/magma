@@ -104,7 +104,7 @@ namespace magma
       }
     };
 
-    Device<claws::NoDelete> device;
+    Device<claws::no_delete> device;
     vk::PhysicalDevice physicalDevice;
     vk::BufferCreateFlags createFlags;
     vk::BufferUsageFlags usage;
@@ -116,7 +116,7 @@ namespace magma
     std::vector<Chunk> chunks;
 
   public:
-    DynamicBuffer(Device<claws::NoDelete> device,
+    DynamicBuffer(Device<claws::no_delete> device,
                   vk::PhysicalDevice physicalDevice,
                   vk::BufferCreateFlags createFlags,
                   vk::BufferUsageFlags usage,
@@ -215,7 +215,7 @@ namespace magma
     auto getMemory(RangeId index)
     {
       Range const &range(chunks[index.first].getRange(index.second));
-      auto deleter([ device = this->device, deviceMemory = DeviceMemory<claws::NoDelete>(chunks[index.first].deviceMemory) ](auto data) {
+      auto deleter([ device = this->device, deviceMemory = DeviceMemory<claws::no_delete>(chunks[index.first].deviceMemory) ](auto data) {
         if (data)
           device.unmapMemory(deviceMemory);
       });
@@ -229,7 +229,7 @@ namespace magma
       chunks[index.first].resizeRange(index.second, size);
     }
 
-    magma::Buffer<claws::NoDelete> getBuffer(RangeId index)
+    magma::Buffer<claws::no_delete> getBuffer(RangeId index)
     {
       return chunks[index.first].buffer;
     }

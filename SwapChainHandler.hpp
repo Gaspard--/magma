@@ -38,7 +38,7 @@ namespace magma
   class SwapchainImpl
   {
   protected:
-    Device<claws::NoDelete> device;
+    Device<claws::no_delete> device;
     vk::Format format;
     vk::Extent2D currentExtent;
 
@@ -74,7 +74,7 @@ namespace magma
               return best;
           }
         throw std::runtime_error("Vulkan Swapchain: No suitable format found.");
-      })(FormatGroup{claws::containerView(formats.begin(), formats.end(), [](auto const &format) { return format.format; })});
+      })(FormatGroup{claws::container_view(formats.begin(), formats.end(), [](auto const &format) { return format.format; })});
       return *std::find_if(formats.begin(), formats.end(), [&possibillities](auto const &format) { return possibillities[format.format]; });
     }
 
@@ -86,7 +86,10 @@ namespace magma
     {}
 
     // TODO: refactor the fuck out of this.
-    SwapchainImpl(Surface const &surface, Device<claws::NoDelete> device, vk::PhysicalDevice physicalDevice, claws::Handle<SwapchainImpl, claws::NoDelete> old)
+    SwapchainImpl(Surface const &surface,
+                  Device<claws::no_delete> device,
+                  vk::PhysicalDevice physicalDevice,
+                  claws::handle<SwapchainImpl, claws::no_delete> old)
       : device(device)
     {
       constexpr std::array<magma::FormatGroup, 3> preferedFormatRanking{
@@ -184,5 +187,5 @@ namespace magma
   }
 
   template<class Deleter = SwapchainImpl::SwapchainDeleter>
-  using Swapchain = claws::Handle<SwapchainImpl, Deleter>;
+  using Swapchain = claws::handle<SwapchainImpl, Deleter>;
 };

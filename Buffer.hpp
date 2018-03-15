@@ -6,7 +6,7 @@ namespace magma
 {
   struct BufferDeleter
   {
-    Device<claws::NoDelete> device;
+    Device<claws::no_delete> device;
 
     void operator()(vk::Buffer const &buffer) const
     {
@@ -16,21 +16,21 @@ namespace magma
   };
 
   template<class Deleter = BufferDeleter>
-  using Buffer = claws::Handle<vk::Buffer, Deleter>;
+  using Buffer = claws::handle<vk::Buffer, Deleter>;
 
   inline auto DeviceImpl::createBuffer(vk::BufferCreateFlags flags,
                                        vk::DeviceSize size,
                                        vk::BufferUsageFlags usage,
                                        std::vector<uint32_t> const &queueFamilies) const
   {
-    return Buffer<>(BufferDeleter{magma::Device<claws::NoDelete>(*this)},
+    return Buffer<>(BufferDeleter{magma::Device<claws::no_delete>(*this)},
                     vk::Device::createBuffer(
                       {flags, size, usage, vk::SharingMode::eExclusive, static_cast<uint32_t>(queueFamilies.size()), queueFamilies.data()}));
   }
 
   inline auto DeviceImpl::createBuffer(vk::BufferCreateFlags flags, vk::DeviceSize size, vk::BufferUsageFlags usage) const
   {
-    return Buffer<>(BufferDeleter{magma::Device<claws::NoDelete>(*this)},
+    return Buffer<>(BufferDeleter{magma::Device<claws::no_delete>(*this)},
                     vk::Device::createBuffer({flags, size, usage, vk::SharingMode::eConcurrent, 0, nullptr}));
   }
 };

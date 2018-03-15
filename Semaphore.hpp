@@ -6,7 +6,7 @@ namespace magma
 {
   struct SemaphoreDeleter
   {
-    Device<claws::NoDelete> device;
+    Device<claws::no_delete> device;
 
     void operator()(vk::Semaphore const &fence) const
     {
@@ -16,10 +16,10 @@ namespace magma
   };
 
   template<class Deleter = SemaphoreDeleter>
-  using Semaphore = claws::Handle<vk::Semaphore, Deleter>;
+  using Semaphore = claws::handle<vk::Semaphore, Deleter>;
 
   inline auto DeviceImpl::createSemaphore() const
   {
-    return Semaphore<>(SemaphoreDeleter{magma::Device<claws::NoDelete>(*this)}, vk::Device::createSemaphore({}));
+    return Semaphore<>(SemaphoreDeleter{magma::Device<claws::no_delete>(*this)}, vk::Device::createSemaphore({}));
   }
 };

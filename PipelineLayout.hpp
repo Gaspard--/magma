@@ -6,7 +6,7 @@ namespace magma
 {
   struct PipelineLayoutDeleter
   {
-    Device<claws::NoDelete> device;
+    Device<claws::no_delete> device;
 
     void operator()(vk::PipelineLayout const &fence) const
     {
@@ -16,13 +16,13 @@ namespace magma
   };
 
   template<class Deleter = PipelineLayoutDeleter>
-  using PipelineLayout = claws::Handle<vk::PipelineLayout, Deleter>;
+  using PipelineLayout = claws::handle<vk::PipelineLayout, Deleter>;
 
   inline auto DeviceImpl::createPipelineLayout(vk::PipelineLayoutCreateFlags flags,
                                                std::vector<vk::DescriptorSetLayout> const &setLayouts,
                                                std::vector<vk::PushConstantRange> const &pushConstantRanges) const
   {
-    return PipelineLayout<>(PipelineLayoutDeleter{magma::Device<claws::NoDelete>(*this)},
+    return PipelineLayout<>(PipelineLayoutDeleter{magma::Device<claws::no_delete>(*this)},
                             vk::Device::createPipelineLayout({flags,
                                                               static_cast<uint32_t>(setLayouts.size()),
                                                               setLayouts.data(),

@@ -53,8 +53,8 @@ namespace magma
                            vk::PipelineVertexInputStateCreateInfo const &vertexInputState,
                            vk::PipelineInputAssemblyStateCreateInfo const &inputAssemblyState,
                            vk::PipelineRasterizationStateCreateInfo const &rasterizationState,
-                           PipelineLayout<claws::NoDelete> const &layout,
-                           RenderPass<claws::NoDelete> renderPass,
+                           PipelineLayout<claws::no_delete> const &layout,
+                           RenderPass<claws::no_delete> renderPass,
                            uint32_t subpass)
       : vk::GraphicsPipelineCreateInfo(flags,
                                        static_cast<uint32_t>(stages.size()),
@@ -121,7 +121,7 @@ namespace magma
 
   struct PipelineDeleter
   {
-    Device<claws::NoDelete> device;
+    Device<claws::no_delete> device;
 
     void operator()(vk::Pipeline const &pipeline) const
     {
@@ -131,10 +131,10 @@ namespace magma
   };
 
   template<class Deleter = PipelineDeleter>
-  using Pipeline = claws::Handle<vk::Pipeline, Deleter>;
+  using Pipeline = claws::handle<vk::Pipeline, Deleter>;
 
   inline auto DeviceImpl::createPipeline(vk::GraphicsPipelineCreateInfo const &createInfo) const
   {
-    return Pipeline<>(PipelineDeleter{magma::Device<claws::NoDelete>(*this)}, vk::Device::createGraphicsPipeline(nullptr, createInfo));
+    return Pipeline<>(PipelineDeleter{magma::Device<claws::no_delete>(*this)}, vk::Device::createGraphicsPipeline(nullptr, createInfo));
   }
 };
