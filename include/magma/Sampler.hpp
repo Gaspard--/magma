@@ -18,7 +18,7 @@ namespace magma
   template<class Deleter = SamplerDeleter>
   using Sampler = claws::handle<vk::Sampler, Deleter>;
 
-  inline auto DeviceImpl::createSampler(vk::Filter magFilter,
+  inline auto impl::Device::createSampler(vk::Filter magFilter,
                                         vk::Filter minFilter,
                                         vk::SamplerMipmapMode mipmapMode,
                                         vk::SamplerAddressMode adressModeU,

@@ -18,7 +18,7 @@ namespace magma
   template<class Deleter = PipelineLayoutDeleter>
   using PipelineLayout = claws::handle<vk::PipelineLayout, Deleter>;
 
-  inline auto DeviceImpl::createPipelineLayout(vk::PipelineLayoutCreateFlags flags,
+  inline auto impl::Device::createPipelineLayout(vk::PipelineLayoutCreateFlags flags,
                                                std::vector<vk::DescriptorSetLayout> const &setLayouts,
                                                std::vector<vk::PushConstantRange> const &pushConstantRanges) const
   {

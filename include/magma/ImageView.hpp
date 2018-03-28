@@ -18,7 +18,7 @@ namespace magma
   template<class Deleter = ImageViewDeleter>
   using ImageView = claws::handle<vk::ImageView, Deleter>;
 
-  inline auto DeviceImpl::createImageView(vk::ImageViewCreateFlags flags,
+  inline auto impl::Device::createImageView(vk::ImageViewCreateFlags flags,
                                           vk::Image image,
                                           vk::ImageViewType type,
                                           vk::Format format,

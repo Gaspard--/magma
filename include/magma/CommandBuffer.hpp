@@ -168,75 +168,78 @@ namespace magma
     }
   };
 
-  class CommandPoolImpl : public vk::CommandPool
+  namespace impl
   {
-  protected:
-    Device<claws::no_delete> device;
-
-    ~CommandPoolImpl() = default;
-
-  public:
-    CommandPoolImpl()
-      : vk::CommandPool(nullptr)
-      , device(nullptr)
-    {}
-
-    CommandPoolImpl(Device<claws::no_delete> device, vk::CommandPool commandPool)
-      : vk::CommandPool(commandPool)
-      , device(device)
-    {}
-
-    void reset(vk::CommandPoolResetFlags flags)
+    class CommandPool : public vk::CommandPool
     {
-      device.resetCommandPool(*this, flags);
-    }
+    protected:
+      magma::Device<claws::no_delete> device;
 
-    auto allocatePrimaryCommandBuffers(uint32_t commandBufferCount)
-    {
-      vk::CommandBufferAllocateInfo info{*this, vk::CommandBufferLevel::ePrimary, commandBufferCount};
+      ~CommandPool() = default;
 
-      return CommandBufferGroup<PrimaryCommandBuffer>{{device, *this}, device.allocateCommandBuffers(info)};
-    }
+    public:
+      CommandPool()
+	: vk::CommandPool(nullptr)
+	, device{}
+      {}
 
-    auto allocateSecondaryCommandBuffers(uint32_t commandBufferCount)
-    {
-      vk::CommandBufferAllocateInfo info{*this, vk::CommandBufferLevel::eSecondary, commandBufferCount};
+      CommandPool(magma::Device<claws::no_delete> device, vk::CommandPool commandPool)
+	: vk::CommandPool(commandPool)
+	, device(device)
+      {}
 
-      return CommandBufferGroup<SecondaryCommandBuffer>{{device, *this}, device.allocateCommandBuffers(info)};
-    }
-
-    void swap(CommandPoolImpl &other)
-    {
-      using std::swap;
-
-      swap(static_cast<vk::CommandPool &>(*this), static_cast<vk::CommandPool &>(other));
-      swap(device, other.device);
-    }
-
-    struct CommandPoolDeleter
-    {
-      friend CommandPoolImpl;
-
-      void operator()(CommandPoolImpl const &commandPool) const
+      void reset(vk::CommandPoolResetFlags flags)
       {
-        if (commandPool)
-          commandPool.device.destroyCommandPool(commandPool);
+	device.resetCommandPool(*this, flags);
       }
-    };
-  };
 
-  inline void swap(CommandPoolImpl &lh, CommandPoolImpl &rh)
-  {
-    lh.swap(rh);
+      auto allocatePrimaryCommandBuffers(uint32_t commandBufferCount)
+      {
+	vk::CommandBufferAllocateInfo info{*this, vk::CommandBufferLevel::ePrimary, commandBufferCount};
+
+	return CommandBufferGroup<PrimaryCommandBuffer>{{device, *this}, device.allocateCommandBuffers(info)};
+      }
+
+      auto allocateSecondaryCommandBuffers(uint32_t commandBufferCount)
+      {
+	vk::CommandBufferAllocateInfo info{*this, vk::CommandBufferLevel::eSecondary, commandBufferCount};
+
+	return CommandBufferGroup<SecondaryCommandBuffer>{{device, *this}, device.allocateCommandBuffers(info)};
+      }
+
+      void swap(CommandPool &other)
+      {
+	using std::swap;
+
+	swap(static_cast<vk::CommandPool &>(*this), static_cast<vk::CommandPool &>(other));
+	swap(device, other.device);
+      }
+
+      struct CommandPoolDeleter
+      {
+	friend CommandPool;
+
+	void operator()(CommandPool const &commandPool) const
+	{
+	  if (commandPool)
+	    commandPool.device.destroyCommandPool(commandPool);
+	}
+      };
+    };
+
+    inline void swap(CommandPool &lh, CommandPool &rh)
+    {
+      lh.swap(rh);
+    }
   }
 
-  template<class Deleter = CommandPoolImpl::CommandPoolDeleter>
-  using CommandPool = claws::handle<CommandPoolImpl, Deleter>;
+  template<class Deleter = impl::CommandPool::CommandPoolDeleter>
+  using CommandPool = claws::handle<impl::CommandPool, Deleter>;
 
-  inline auto DeviceImpl::createCommandPool(vk::CommandPoolCreateFlags flags, uint32_t queueFamilyIndex) const
+  inline auto impl::Device::createCommandPool(vk::CommandPoolCreateFlags flags, uint32_t queueFamilyIndex) const
   {
     vk::CommandPoolCreateInfo createInfo{flags, queueFamilyIndex};
 
-    return CommandPool<>{{}, magma::Device<claws::no_delete>(*this), vk::Device::createCommandPool(createInfo)};
+    return magma::CommandPool<>{{}, magma::Device<claws::no_delete>(*this), vk::Device::createCommandPool(createInfo)};
   }
 };

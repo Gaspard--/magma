@@ -133,7 +133,7 @@ namespace magma
   template<class Deleter = PipelineDeleter>
   using Pipeline = claws::handle<vk::Pipeline, Deleter>;
 
-  inline auto DeviceImpl::createPipeline(vk::GraphicsPipelineCreateInfo const &createInfo) const
+  inline auto impl::Device::createPipeline(vk::GraphicsPipelineCreateInfo const &createInfo) const
   {
     return Pipeline<>(PipelineDeleter{magma::Device<claws::no_delete>(*this)}, vk::Device::createGraphicsPipeline(nullptr, createInfo));
   }

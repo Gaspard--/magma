@@ -18,7 +18,7 @@ namespace magma
   template<class Deleter = ImageDeleter>
   using Image = claws::handle<vk::Image, Deleter>;
 
-  inline auto DeviceImpl::createImage2D(vk::ImageCreateFlags flags,
+  inline auto impl::Device::createImage2D(vk::ImageCreateFlags flags,
                                         vk::Format format,
                                         std::array<uint32_t, 2> extent,
                                         vk::SampleCountFlagBits samples,
@@ -43,7 +43,7 @@ namespace magma
                                             layout}));
   }
 
-  inline auto DeviceImpl::createImage2D(vk::ImageCreateFlags flags,
+  inline auto impl::Device::createImage2D(vk::ImageCreateFlags flags,
                                         vk::Format format,
                                         std::array<uint32_t, 2> extent,
                                         vk::SampleCountFlagBits samples,

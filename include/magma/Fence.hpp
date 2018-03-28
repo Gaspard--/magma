@@ -18,7 +18,7 @@ namespace magma
   template<class Deleter = FenceDeleter>
   using Fence = claws::handle<vk::Fence, Deleter>;
 
-  inline auto DeviceImpl::createFence(vk::FenceCreateFlags flags) const
+  inline auto impl::Device::createFence(vk::FenceCreateFlags flags) const
   {
     return Fence<>(FenceDeleter{magma::Device<claws::no_delete>(*this)}, vk::Device::createFence({flags}));
   }

@@ -18,12 +18,12 @@ namespace magma
   template<class Deleter = DeviceMemoryDeleter>
   using DeviceMemory = claws::handle<vk::DeviceMemory, Deleter>;
 
-  inline auto DeviceImpl::createDeviceMemory(vk::DeviceSize size, uint32_t typeIndex) const
+  inline auto impl::Device::createDeviceMemory(vk::DeviceSize size, uint32_t typeIndex) const
   {
     return DeviceMemory<>(DeviceMemoryDeleter{magma::Device<claws::no_delete>(*this)}, vk::Device::allocateMemory({size, typeIndex}));
   }
 
-  inline auto DeviceImpl::selectAndCreateDeviceMemory(vk::PhysicalDevice physicalDevice,
+  inline auto impl::Device::selectAndCreateDeviceMemory(vk::PhysicalDevice physicalDevice,
                                                       vk::DeviceSize size,
                                                       vk::MemoryPropertyFlags memoryFlags,
                                                       uint32_t memoryTypeIndexMask) const
