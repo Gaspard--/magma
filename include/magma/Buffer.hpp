@@ -19,9 +19,9 @@ namespace magma
   using Buffer = claws::handle<vk::Buffer, Deleter>;
 
   inline auto impl::Device::createBuffer(vk::BufferCreateFlags flags,
-                                       vk::DeviceSize size,
-                                       vk::BufferUsageFlags usage,
-                                       std::vector<uint32_t> const &queueFamilies) const
+                                         vk::DeviceSize size,
+                                         vk::BufferUsageFlags usage,
+                                         std::vector<uint32_t> const &queueFamilies) const
   {
     return Buffer<>(BufferDeleter{magma::Device<claws::no_delete>(*this)},
                     vk::Device::createBuffer(

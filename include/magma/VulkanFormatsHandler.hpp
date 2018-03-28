@@ -1,9 +1,11 @@
 #pragma once
 
 #include <type_traits>
+
+#include "claws/array_ops.hpp"
+#include "claws/iterator_util.hpp"
+
 #include "vulkan/vulkan.hpp"
-#include "claws/ArrayOps.hpp"
-#include "claws/IteratorUtil.hpp"
 
 namespace magma
 {
