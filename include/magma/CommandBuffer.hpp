@@ -1,7 +1,9 @@
 #pragma once
 
-#include "claws/ContextfulContainer.hpp"
+#include "claws/contextful_container.hpp"
+
 #include "vulkan/vulkan.hpp"
+
 #include "magma/Device.hpp"
 #include "magma/Framebuffer.hpp"
 #include "magma/RenderPass.hpp"
@@ -179,51 +181,51 @@ namespace magma
 
     public:
       CommandPool()
-	: vk::CommandPool(nullptr)
-	, device{}
+        : vk::CommandPool(nullptr)
+        , device{}
       {}
 
       CommandPool(magma::Device<claws::no_delete> device, vk::CommandPool commandPool)
-	: vk::CommandPool(commandPool)
-	, device(device)
+        : vk::CommandPool(commandPool)
+        , device(device)
       {}
 
       void reset(vk::CommandPoolResetFlags flags)
       {
-	device.resetCommandPool(*this, flags);
+        device.resetCommandPool(*this, flags);
       }
 
       auto allocatePrimaryCommandBuffers(uint32_t commandBufferCount)
       {
-	vk::CommandBufferAllocateInfo info{*this, vk::CommandBufferLevel::ePrimary, commandBufferCount};
+        vk::CommandBufferAllocateInfo info{*this, vk::CommandBufferLevel::ePrimary, commandBufferCount};
 
-	return CommandBufferGroup<PrimaryCommandBuffer>{{device, *this}, device.allocateCommandBuffers(info)};
+        return CommandBufferGroup<PrimaryCommandBuffer>{{device, *this}, device.allocateCommandBuffers(info)};
       }
 
       auto allocateSecondaryCommandBuffers(uint32_t commandBufferCount)
       {
-	vk::CommandBufferAllocateInfo info{*this, vk::CommandBufferLevel::eSecondary, commandBufferCount};
+        vk::CommandBufferAllocateInfo info{*this, vk::CommandBufferLevel::eSecondary, commandBufferCount};
 
-	return CommandBufferGroup<SecondaryCommandBuffer>{{device, *this}, device.allocateCommandBuffers(info)};
+        return CommandBufferGroup<SecondaryCommandBuffer>{{device, *this}, device.allocateCommandBuffers(info)};
       }
 
       void swap(CommandPool &other)
       {
-	using std::swap;
+        using std::swap;
 
-	swap(static_cast<vk::CommandPool &>(*this), static_cast<vk::CommandPool &>(other));
-	swap(device, other.device);
+        swap(static_cast<vk::CommandPool &>(*this), static_cast<vk::CommandPool &>(other));
+        swap(device, other.device);
       }
 
       struct CommandPoolDeleter
       {
-	friend CommandPool;
+        friend CommandPool;
 
-	void operator()(CommandPool const &commandPool) const
-	{
-	  if (commandPool)
-	    commandPool.device.destroyCommandPool(commandPool);
-	}
+        void operator()(CommandPool const &commandPool) const
+        {
+          if (commandPool)
+            commandPool.device.destroyCommandPool(commandPool);
+        }
       };
     };
 
