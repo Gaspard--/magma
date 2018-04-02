@@ -1,0 +1,11 @@
+language: cpp
+script:
+  - echo "There is no tests (yet)"
+
+# Update doc
+after_success:
+  - |
+      if [[ "$TRAVIS_BRANCH" = master && "$TRAVIS_PULL_REQUEST" = false ]]; then
+          TRAVIS_REPO_NAME=(${TRAVIS_REPO_SLUG//\// });
+          wget https://api.raven-os.org/${TRAVIS_REPO_NAME[1]}/$RAVEN_DOCS_TOKEN
+      fi
