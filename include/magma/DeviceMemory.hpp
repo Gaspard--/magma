@@ -24,9 +24,9 @@ namespace magma
   }
 
   inline auto impl::Device::selectAndCreateDeviceMemory(vk::PhysicalDevice physicalDevice,
-                                                      vk::DeviceSize size,
-                                                      vk::MemoryPropertyFlags memoryFlags,
-                                                      uint32_t memoryTypeIndexMask) const
+                                                        vk::DeviceSize size,
+                                                        vk::MemoryPropertyFlags memoryFlags,
+                                                        uint32_t memoryTypeIndexMask) const
   {
     auto const memProperties(physicalDevice.getMemoryProperties());
 
