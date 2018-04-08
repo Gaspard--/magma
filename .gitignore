@@ -30,13 +30,9 @@ Session.vim
 *.exe
 *.out
 *.app
-wasted_prophecies
 
 # emacs backup files
 *~
 
 # build directory
 build/
-
-# submodules
-# include/magma
