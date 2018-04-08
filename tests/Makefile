@@ -6,7 +6,8 @@ ifeq ($(V), 0)
         Q = @
 endif
 
-SRC =	Device.cpp
+SRC =	Device.cpp \
+	CommandBuffer.cpp
 
 OUT =	$(SRC:.cpp=.out)
 
@@ -17,6 +18,6 @@ all:	$(OUT)
 	$(A)./$@ && echo [$<] SUCCESS || echo [$<] FAIL
 
 clean:
-	$(Q)rm $(OUT)
+	$(Q)rm -f $(OUT)
 
 .PHONY: all clean
