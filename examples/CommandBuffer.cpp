@@ -4,7 +4,7 @@
 int allocateBuffers(magma::CommandPool<claws::no_delete> commandPool)
 {
   magma::CommandBufferGroup<magma::PrimaryCommandBuffer> commandBufferGroup(commandPool.allocatePrimaryCommandBuffers(1));
-  magma::CommandBufferGroup<magma::SecondaryCommandBuffer> secondaryCommandBufferGroup(commandPool.allocateSecondaryCommandBuffers(10));
+  magma::CommandBufferGroup<magma::SecondaryCommandBuffer> secondaryCommandBufferGroup(commandPool.allocateSecondaryCommandBuffers(1));
 
   secondaryCommandBufferGroup[0].begin(vk::CommandBufferUsageFlagBits::eOneTimeSubmit, vk::CommandBufferInheritanceInfo{nullptr, 0, nullptr, false, {}, {}});
   secondaryCommandBufferGroup[0].end();

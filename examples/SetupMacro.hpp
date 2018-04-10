@@ -8,9 +8,12 @@
 									\
   auto [physicalDevice, selectedQueueFamily] = instance.selectQueue([](auto const &queueFamilyProperties, auto const &physicalDevice, auto queueIndex) \
 								    {	\
-								      return (queueFamilyProperties.queueFlags & REQUIRED_FLAGS); \
+								      return (queueFamilyProperties.queueFlags & (REQUIRED_FLAGS)); \
 								    },	\
-								    [](auto const &, auto const &) { return true; }); \
+								    [](auto const &, auto const &) \
+								    {	\
+								      return true; \
+								    }); \
   {									\
     float priority[1]{1.0f};						\
     vk::DeviceQueueCreateInfo deviceQueueCreateInfo{{}, selectedQueueFamily, 1, priority}; \
