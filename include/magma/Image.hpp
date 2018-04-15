@@ -1,21 +1,11 @@
 #pragma once
 
+#include "magma/Deleter.hpp"
 #include "magma/Device.hpp"
 
 namespace magma
 {
-  struct ImageDeleter
-  {
-    Device<claws::no_delete> device;
-
-    void operator()(vk::Image const &image) const
-    {
-      if (device)
-        device.destroyImage(image);
-    }
-  };
-
-  template<class Deleter = ImageDeleter>
+  template<class Deleter = Deleter>
   using Image = claws::handle<vk::Image, Deleter>;
 
   inline auto impl::Device::createImage2D(vk::ImageCreateFlags flags,
@@ -27,7 +17,7 @@ namespace magma
                                           std::vector<uint32_t> indices,
                                           vk::ImageLayout layout) const
   {
-    return Image<>(ImageDeleter{magma::Device<claws::no_delete>(*this)},
+    return Image<>(Deleter{magma::Device<claws::no_delete>(*this)},
                    vk::Device::createImage({flags,
                                             vk::ImageType::e2D,
                                             format,
@@ -51,7 +41,7 @@ namespace magma
                                           vk::ImageUsageFlags usage,
                                           vk::ImageLayout layout) const
   {
-    return Image<>(ImageDeleter{magma::Device<claws::no_delete>(*this)},
+    return Image<>(Deleter{magma::Device<claws::no_delete>(*this)},
                    vk::Device::createImage({flags,
                                             vk::ImageType::e2D,
                                             format,

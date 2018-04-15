@@ -1,5 +1,6 @@
 #pragma once
 
+#include "magma/Deleter.hpp"
 #include "magma/Device.hpp"
 
 namespace magma
@@ -70,16 +71,6 @@ namespace magma
         swap(device, other.device);
       }
 
-      struct DescriptorPoolDeleter
-      {
-        friend DescriptorPool;
-
-        void operator()(DescriptorPool const &descriptorPool) const
-        {
-          if (descriptorPool)
-            descriptorPool.device.destroyDescriptorPool(descriptorPool);
-        }
-      };
     };
 
     inline void swap(DescriptorPool &lh, DescriptorPool &rh)
@@ -88,7 +79,7 @@ namespace magma
     }
   }
 
-  template<class Deleter = impl::DescriptorPool::DescriptorPoolDeleter>
+  template<class Deleter = Deleter>
   using DescriptorPool = claws::handle<impl::DescriptorPool, Deleter>;
 
   inline auto impl::Device::createDescriptorPool(std::uint32_t maxSets, std::vector<vk::DescriptorPoolSize> const &size) const

@@ -35,7 +35,6 @@ namespace magma
         }(physicalDevice, deviceQueueCreateInfos, extensions))
       {}
 
-      using vk::Device::Device;
 
       void swap(Device &other)
       {
@@ -43,6 +42,8 @@ namespace magma
 
         swap(static_cast<vk::Device &>(*this), static_cast<vk::Device &>(other));
       }
+
+      using vk::Device::destroy;
 
       auto createCommandPool(vk::CommandPoolCreateFlags flags, uint32_t queueFamilyIndex) const;
 

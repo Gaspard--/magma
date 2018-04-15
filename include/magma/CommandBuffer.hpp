@@ -4,6 +4,7 @@
 
 #include "vulkan/vulkan.hpp"
 
+#include "magma/Deleter.hpp"
 #include "magma/Device.hpp"
 #include "magma/Framebuffer.hpp"
 #include "magma/RenderPass.hpp"
@@ -217,16 +218,6 @@ namespace magma
         swap(device, other.device);
       }
 
-      struct CommandPoolDeleter
-      {
-        friend CommandPool;
-
-        void operator()(CommandPool const &commandPool) const
-        {
-          if (commandPool)
-            commandPool.device.destroyCommandPool(commandPool);
-        }
-      };
     };
 
     inline void swap(CommandPool &lh, CommandPool &rh)
@@ -235,7 +226,7 @@ namespace magma
     }
   }
 
-  template<class Deleter = impl::CommandPool::CommandPoolDeleter>
+  template<class Deleter = Deleter>
   using CommandPool = claws::handle<impl::CommandPool, Deleter>;
 
   inline auto impl::Device::createCommandPool(vk::CommandPoolCreateFlags flags, uint32_t queueFamilyIndex) const

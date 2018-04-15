@@ -1,5 +1,6 @@
 #pragma once
 
+#include "magma/Deleter.hpp"
 #include "magma/Device.hpp"
 
 namespace magma
@@ -32,23 +33,12 @@ namespace magma
     ~RenderPassCreateInfo() = default;
   };
 
-  struct RenderPassDeleter
-  {
-    Device<claws::no_delete> device;
-
-    void operator()(vk::RenderPass const &renderPass)
-    {
-      if (device)
-        device.destroyRenderPass(renderPass);
-    }
-  };
-
-  template<class Deleter = RenderPassDeleter>
+  template<class Deleter = Deleter>
   using RenderPass = claws::handle<vk::RenderPass, Deleter>;
 
   inline auto impl::Device::createRenderPass(vk::RenderPassCreateInfo const &renderPassCreateInfo) const
   {
-    return RenderPass<>(RenderPassDeleter{magma::Device<claws::no_delete>(*this)}, vk::Device::createRenderPass(renderPassCreateInfo));
+    return RenderPass<>(Deleter{magma::Device<claws::no_delete>(*this)}, vk::Device::createRenderPass(renderPassCreateInfo));
   }
 
   inline auto impl::Device::getRenderAreaGranularity(RenderPass<claws::no_delete> renderPass) const

@@ -3,6 +3,7 @@
 
 #include <numeric>
 #include <iomanip>
+#include "magma/Deleter.hpp"
 #include "magma/Device.hpp"
 
 namespace magma
@@ -22,24 +23,13 @@ namespace magma
     return out;
   }
 
-  struct ShaderModuleDestructor
-  {
-    magma::Device<claws::no_delete> device;
-
-    void operator()(vk::ShaderModule const &shaderModule) const
-    {
-      if (shaderModule)
-        device.destroyShaderModule(shaderModule);
-    }
-  };
-
-  template<class Deleter = ShaderModuleDestructor>
+  template<class Deleter = Deleter>
   using ShaderModule = claws::handle<vk::ShaderModule, Deleter>;
 
   template<class Container>
   inline auto impl::Device::createShaderModule(Container const &code) const
   {
-    return ShaderModule<>(ShaderModuleDestructor{magma::Device<claws::no_delete>(*this)},
+    return ShaderModule<>(Deleter{magma::Device<claws::no_delete>(*this)},
                           vk::Device::createShaderModule(vk::ShaderModuleCreateInfo{{}, code.size() * sizeof(uint32_t), code.data()}));
   }
 

@@ -1,21 +1,11 @@
 #pragma once
 
+#include "magma/Deleter.hpp"
 #include "magma/Device.hpp"
 
 namespace magma
 {
-  struct SamplerDeleter
-  {
-    Device<claws::no_delete> device;
-
-    void operator()(vk::Sampler const &sampler) const
-    {
-      if (device)
-        device.destroySampler(sampler);
-    }
-  };
-
-  template<class Deleter = SamplerDeleter>
+  template<class Deleter = Deleter>
   using Sampler = claws::handle<vk::Sampler, Deleter>;
 
   inline auto impl::Device::createSampler(vk::Filter magFilter,
@@ -34,7 +24,7 @@ namespace magma
                                           vk::BorderColor borderColor,
                                           vk::Bool32 unnormalizedCoordinates) const
   {
-    return Sampler<>(SamplerDeleter{magma::Device<claws::no_delete>(*this)},
+    return Sampler<>(Deleter{magma::Device<claws::no_delete>(*this)},
                      vk::Device::createSampler({{},
                                                 magFilter,
                                                 minFilter,
