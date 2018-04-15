@@ -1,5 +1,6 @@
 #pragma once
 
+#incldue "magma/Deleter.hpp"
 #include "magma/Device.hpp"
 
 namespace magma

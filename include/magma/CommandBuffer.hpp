@@ -4,6 +4,7 @@
 
 #include "vulkan/vulkan.hpp"
 
+#include "magma/Deleter.hpp"
 #include "magma/Device.hpp"
 #include "magma/Framebuffer.hpp"
 #include "magma/RenderPass.hpp"

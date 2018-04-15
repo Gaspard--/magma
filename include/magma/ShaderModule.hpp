@@ -3,6 +3,7 @@
 
 #include <numeric>
 #include <iomanip>
+#include "magma/Deleter.hpp"
 #include "magma/Device.hpp"
 
 namespace magma

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "magam/Deleter.hpp"
 #include "magma/Device.hpp"
 #include "magma/RenderPass.hpp"
 

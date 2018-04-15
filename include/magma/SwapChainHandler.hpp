@@ -2,6 +2,7 @@
 
 #include <algorithm>
 
+#include "magma/Deleter.hpp"
 #include "VulkanFormatsHandler.hpp"
 #include "VulkanHandler.hpp"
 
