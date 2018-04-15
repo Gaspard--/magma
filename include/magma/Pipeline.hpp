@@ -119,22 +119,11 @@ namespace magma
     }
   };
 
-  struct PipelineDeleter
-  {
-    Device<claws::no_delete> device;
-
-    void operator()(vk::Pipeline const &pipeline) const
-    {
-      if (device)
-        device.destroyPipeline(pipeline);
-    }
-  };
-
-  template<class Deleter = PipelineDeleter>
+  template<class Deleter = Deleter<vk::Pipeline>>
   using Pipeline = claws::handle<vk::Pipeline, Deleter>;
 
   inline auto impl::Device::createPipeline(vk::GraphicsPipelineCreateInfo const &createInfo) const
   {
-    return Pipeline<>(PipelineDeleter{magma::Device<claws::no_delete>(*this)}, vk::Device::createGraphicsPipeline(nullptr, createInfo));
+    return Pipeline<>(Deleter<vk::Pipeline>{magma::Device<claws::no_delete>(*this)}, vk::Device::createGraphicsPipeline(nullptr, createInfo));
   }
 };

@@ -47,16 +47,6 @@ namespace magma
     public:
       ~Swapchain() = default;
 
-      struct SwapchainDeleter
-      {
-        friend class Swapchain;
-
-        void operator()(Swapchain const &swapchain)
-        {
-          if (swapchain.vkSwapchain)
-            swapchain.device.destroySwapchainKHR(swapchain.vkSwapchain);
-        }
-      };
       vk::SwapchainKHR vkSwapchain;
 
       template<class CONTAINER>
@@ -189,6 +179,6 @@ namespace magma
     }
   }
 
-  template<class Deleter = impl::Swapchain::SwapchainDeleter>
+  template<class Deleter = Deleter<vk::SwapchainKHR>>
   using Swapchain = claws::handle<impl::Swapchain, Deleter>;
 };

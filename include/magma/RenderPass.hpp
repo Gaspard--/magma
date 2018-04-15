@@ -32,23 +32,12 @@ namespace magma
     ~RenderPassCreateInfo() = default;
   };
 
-  struct RenderPassDeleter
-  {
-    Device<claws::no_delete> device;
-
-    void operator()(vk::RenderPass const &renderPass)
-    {
-      if (device)
-        device.destroyRenderPass(renderPass);
-    }
-  };
-
-  template<class Deleter = RenderPassDeleter>
+  template<class Deleter = Deleter<vk::RenderPass>>
   using RenderPass = claws::handle<vk::RenderPass, Deleter>;
 
   inline auto impl::Device::createRenderPass(vk::RenderPassCreateInfo const &renderPassCreateInfo) const
   {
-    return RenderPass<>(RenderPassDeleter{magma::Device<claws::no_delete>(*this)}, vk::Device::createRenderPass(renderPassCreateInfo));
+    return RenderPass<>(Deleter<vk::RenderPass>{magma::Device<claws::no_delete>(*this)}, vk::Device::createRenderPass(renderPassCreateInfo));
   }
 
   inline auto impl::Device::getRenderAreaGranularity(RenderPass<claws::no_delete> renderPass) const
