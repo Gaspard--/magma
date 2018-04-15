@@ -2,7 +2,6 @@
 
 #include <algorithm>
 
-#include "magma/Deleter.hpp"
 #include "VulkanFormatsHandler.hpp"
 #include "VulkanHandler.hpp"
 
@@ -48,6 +47,16 @@ namespace magma
     public:
       ~Swapchain() = default;
 
+      struct SwapchainDeleter
+      {
+        friend class Swapchain;
+
+        void operator()(Swapchain const &swapchain)
+        {
+          if (swapchain.vkSwapchain)
+            swapchain.device.destroySwapchainKHR(swapchain.vkSwapchain);
+        }
+      };
       vk::SwapchainKHR vkSwapchain;
 
       template<class CONTAINER>
@@ -180,6 +189,6 @@ namespace magma
     }
   }
 
-  template<class Deleter = Deleter>
+  template<class Deleter = impl::Swapchain::SwapchainDeleter>
   using Swapchain = claws::handle<impl::Swapchain, Deleter>;
 };
