@@ -5,7 +5,7 @@
 
 namespace magma
 {
-  template<class Deleter = Deleter<vk::ImageView>>
+  template<class Deleter = Deleter>
   using ImageView = claws::handle<vk::ImageView, Deleter>;
 
   inline auto impl::Device::createImageView(vk::ImageViewCreateFlags flags,
@@ -15,7 +15,7 @@ namespace magma
                                             vk::ComponentMapping components,
                                             vk::ImageSubresourceRange subresourceRange) const
   {
-    return ImageView<>(Deleter<vk::ImageView>{magma::Device<claws::no_delete>(*this)},
+    return ImageView<>(Deleter{magma::Device<claws::no_delete>(*this)},
                        vk::Device::createImageView({flags, image, type, format, components, subresourceRange}));
   }
 };

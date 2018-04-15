@@ -79,7 +79,7 @@ namespace magma
     }
   }
 
-  template<class Deleter = Deleter<vk::DescriptorPool>>
+  template<class Deleter = Deleter>
   using DescriptorPool = claws::handle<impl::DescriptorPool, Deleter>;
 
   inline auto impl::Device::createDescriptorPool(std::uint32_t maxSets, std::vector<vk::DescriptorPoolSize> const &size) const

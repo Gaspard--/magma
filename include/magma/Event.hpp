@@ -5,11 +5,11 @@
 
 namespace magma
 {
-  template<class Deleter = Deleter<vk::Event>>
+  template<class Deleter = Deleter>
   using Event = claws::handle<vk::Event, Deleter>;
 
   inline auto impl::Device::createEvent(void) const
   {
-    Event<>(Deleter<vk::Event>{magma::Device<claws::no_delete>(*this)}, vk::Device::createEvent({}));
+    Event<>(Deleter{magma::Device<claws::no_delete>(*this)}, vk::Device::createEvent({}));
   }
 };

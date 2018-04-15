@@ -180,6 +180,6 @@ namespace magma
     }
   }
 
-  template<class Deleter = Deleter<vk::SwapchainKHR>>
+  template<class Deleter = Deleter>
   using Swapchain = claws::handle<impl::Swapchain, Deleter>;
 };

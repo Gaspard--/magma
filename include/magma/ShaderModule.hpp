@@ -23,13 +23,13 @@ namespace magma
     return out;
   }
 
-  template<class Deleter = Deleter<vk::ShaderModule>>
+  template<class Deleter = Deleter>
   using ShaderModule = claws::handle<vk::ShaderModule, Deleter>;
 
   template<class Container>
   inline auto impl::Device::createShaderModule(Container const &code) const
   {
-    return ShaderModule<>(Deleter<vk::ShaderModule>{magma::Device<claws::no_delete>(*this)},
+    return ShaderModule<>(Deleter{magma::Device<claws::no_delete>(*this)},
                           vk::Device::createShaderModule(vk::ShaderModuleCreateInfo{{}, code.size() * sizeof(uint32_t), code.data()}));
   }
 

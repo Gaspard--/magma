@@ -226,7 +226,7 @@ namespace magma
     }
   }
 
-  template<class Deleter = Deleter<vk::CommandPool>>
+  template<class Deleter = Deleter>
   using CommandPool = claws::handle<impl::CommandPool, Deleter>;
 
   inline auto impl::Device::createCommandPool(vk::CommandPoolCreateFlags flags, uint32_t queueFamilyIndex) const

@@ -5,11 +5,11 @@
 
 namespace magma
 {
-  template<class Deleter = Deleter<vk::Fence>>
+  template<class Deleter = Deleter>
   using Fence = claws::handle<vk::Fence, Deleter>;
 
   inline auto impl::Device::createFence(vk::FenceCreateFlags flags) const
   {
-    return Fence<>(Deleter<vk::Fence>{magma::Device<claws::no_delete>(*this)}, vk::Device::createFence({flags}));
+    return Fence<>(Deleter{magma::Device<claws::no_delete>(*this)}, vk::Device::createFence({flags}));
   }
 };
