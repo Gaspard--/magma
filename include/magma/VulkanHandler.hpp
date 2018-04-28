@@ -1,9 +1,11 @@
 #pragma once
 
+#include "vulkan/vulkan.hpp"
 #include <array>
 #include <vector>
 #include <unordered_map>
 #include <set>
+#include <iostream>
 
 #ifdef DEBUG_LAYERS
 inline VkResult vkCreateDebugReportCallbackEXT(VkInstance instance,
