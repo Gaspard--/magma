@@ -1,6 +1,8 @@
 #pragma once
 
 #include "vulkan/vulkan.hpp"
+
+#include "claws/iterator_util.hpp"
 #include <array>
 #include <vector>
 #include <unordered_map>
