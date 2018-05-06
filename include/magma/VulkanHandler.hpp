@@ -47,6 +47,34 @@ namespace magma
     vk::DebugReportCallbackEXT callback;
 #endif
 
+    /// \breif selects a device based on the returned score by `mapToScore`
+    ///
+    /// @param mapToScore maps a device to a score. The returned type must be comparable with `operator<`
+    /// @return a `std::pair` of the select `vk::PhysicalDevice` and the corresponding biggest value returned by mapToScore.
+    /// @throw Any exception thrown by `mapToScore`, or by vulkan-hpp through `enumeratePhysicalDevices`.
+    template<class SCORE_MAPPER>
+    auto selectDevice(SCORE_MAPPER mapToScore)
+    {
+      auto physicalDevices(vkInstance.enumeratePhysicalDevices());
+
+      claws::container_view scoreList(vkInstance.enumeratePhysicalDevices(), mapToScore);
+
+      if (physicalDevices.size() == 1)
+	return std::pair{physicalDevices[0], scoreList[0]};
+
+      std::array<std::pair<vk::PhysicalDevice, decltype(scoreList[0])>, 2u> best_and_next{
+	std::pair{physicalDevices[0], scoreList[0]},
+	  std::pair{physicalDevices[1], scoreList[1]}
+      };
+      bool swapped(best_and_next[0].second < best_and_next[1].second);
+      for (size_t i = 2; i < physicalDevices.size(); ++i)
+	{
+	  best_and_next[!swapped] = std::pair{physicalDevices[i], scoreList[i]};
+	  swapped = best_and_next[0].second < best_and_next[1].second;
+	}
+      return best_and_next[swapped];
+    }
+
     template<class DEVICE_FILTER, class COMPARE>
     vk::PhysicalDevice selectDevice(DEVICE_FILTER deviceFilter, COMPARE compare)
     {
