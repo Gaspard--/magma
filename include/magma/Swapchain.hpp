@@ -4,37 +4,10 @@
 
 #include "VulkanFormatsHandler.hpp"
 #include "VulkanHandler.hpp"
+#include "Surface.hpp"
 
 namespace magma
 {
-  class Surface
-  {
-  public:
-    vk::Instance instance;
-    vk::SurfaceKHR vkSurface;
-
-    Surface()
-      : instance(nullptr)
-      , vkSurface(nullptr)
-    {}
-
-    Surface(Instance &instance, vk::SurfaceKHR vkSurface)
-      : instance(instance.vkInstance)
-      , vkSurface(vkSurface)
-    {}
-
-    ~Surface()
-    {
-      if (instance)
-        instance.destroySurfaceKHR(vkSurface);
-    }
-
-    bool isQueueFamilySuitable(vk::PhysicalDevice physicalDevice, uint32_t queueIndex)
-    {
-      return physicalDevice.getSurfaceSupportKHR(queueIndex, vkSurface);
-    }
-  };
-
   namespace impl
   {
     class Swapchain
