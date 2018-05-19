@@ -110,9 +110,6 @@ namespace magma
       return {std::get<1>(*it), std::get<2>(*it)};
     }
 
-    Instance(Instance const &) = delete;
-    Instance(Instance &&) = delete;
-
     Instance(std::vector<char const *> &&extensions = {})
       : vkInstance([](std::vector<char const *> &&extensions) {
         vk::ApplicationInfo appInfo("Wasted Prophecies", VK_MAKE_VERSION(1, 0, 0), nullptr, VK_MAKE_VERSION(1, 0, 0), VK_API_VERSION_1_0);
@@ -134,7 +131,7 @@ namespace magma
                                                   extensions.data());
 
         return vk::createInstance(instanceCreateInfo);
-      }(std::forward<std::vector<char const *>>(extensions)))
+	}(std::move(extensions)))
 #ifdef DEBUG_LAYERS
       , callback([](vk::Instance vkInstance) {
         vk::DebugReportCallbackCreateInfoEXT createInfo{vk::DebugReportFlagBitsEXT::eError | vk::DebugReportFlagBitsEXT::eWarning,
@@ -157,12 +154,27 @@ namespace magma
         throw std::runtime_error("vulkan : failed to create instance");
     }
 
+    Instance(Instance const &) = delete;
+    Instance(Instance &&other)
+      : vkInstance(other.vkInstance)
+#ifdef DEBUG_LAYERS
+      , callback(other.callback)
+#endif
+    {
+      other.vkInstance = nullptr;
+    }
+
+
+
     ~Instance()
     {
+      if (vkInstance)
+	{
 #ifdef DEBUG_LAYERS
-      vkInstance.destroyDebugReportCallbackEXT(callback);
+	  vkInstance.destroyDebugReportCallbackEXT(callback);
 #endif
-      vkInstance.destroy();
+	  vkInstance.destroy();
+	}
     }
   };
 };
