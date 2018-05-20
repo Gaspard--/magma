@@ -1,5 +1,7 @@
 #pragma once
 
+#include <claws/handle_types.hpp>
+
 namespace magma
 {
   namespace impl
@@ -43,4 +45,9 @@ namespace magma
   
   template<class Deleter = impl::SurfaceDeleter>
   using Surface = claws::handle<impl::Surface, Deleter>;
+
+  Surface<> makeSurface(magma::Instance const &instance, vk::SurfaceKHR vkSurface)
+  {
+    return Surface<>{{instance.vkInstance}, vkSurface};
+  }
 }

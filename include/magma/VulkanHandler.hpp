@@ -55,7 +55,7 @@ namespace magma
     /// @return a `std::pair` of the select `vk::PhysicalDevice` and the corresponding biggest value returned by mapToScore.
     /// @throw Any exception thrown by `mapToScore`, or by vulkan-hpp through `enumeratePhysicalDevices`.
     template<class SCORE_MAPPER>
-    auto selectDevice(SCORE_MAPPER mapToScore)
+    auto selectDevice(SCORE_MAPPER mapToScore) const
     {
       auto physicalDevices(vkInstance.enumeratePhysicalDevices());
 
@@ -78,7 +78,7 @@ namespace magma
     }
 
     template<class DEVICE_FILTER, class COMPARE>
-    vk::PhysicalDevice selectDevice(DEVICE_FILTER deviceFilter, COMPARE compare)
+    vk::PhysicalDevice selectDevice(DEVICE_FILTER deviceFilter, COMPARE compare) const
     {
       auto physicalDevices(vkInstance.enumeratePhysicalDevices());
       auto end(std::remove_if(physicalDevices.begin(), physicalDevices.end(), [deviceFilter](auto &&a) { return !deviceFilter(a); }));
@@ -90,7 +90,7 @@ namespace magma
     }
 
     template<class FILTER, class COMPARE>
-    std::pair<vk::PhysicalDevice, unsigned int> selectQueue(FILTER filter, COMPARE compare)
+    std::pair<vk::PhysicalDevice, unsigned int> selectQueue(FILTER filter, COMPARE compare) const
     {
       auto physicalDevices(vkInstance.enumeratePhysicalDevices());
       std::vector<std::tuple<vk::QueueFamilyProperties, vk::PhysicalDevice, unsigned int>> queueList;
@@ -163,8 +163,6 @@ namespace magma
     {
       other.vkInstance = nullptr;
     }
-
-
 
     ~Instance()
     {

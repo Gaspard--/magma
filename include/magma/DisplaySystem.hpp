@@ -23,7 +23,7 @@ namespace magma {
       magma::ImageView<> swapchainImageView;
       FrameUserData userData;
 
-      FrameData(magma::Device<claws::no_delete> device, magma::Swapchain<claws::no_delete> swapchain, UserData const &userData, SwapchainUserData const &swapchainUserData, vk::Image swapchainImage)
+      FrameData(magma::Device<claws::no_delete> device, magma::Swapchain<claws::no_delete> swapchain, UserData &userData, SwapchainUserData &swapchainUserData, vk::Image swapchainImage)
 	: swapchainImageView(device.createImageView({},
 						    swapchainImage,
 						    vk::ImageViewType::e2D,
@@ -55,16 +55,18 @@ namespace magma {
     DisplaySystem(DisplaySystem const &) = delete;
     DisplaySystem(DisplaySystem &&) = delete;
 
+    template<class... T>
     explicit DisplaySystem(vk::PhysicalDevice physicalDevice,
 			   magma::Surface<claws::no_delete> surface,
 			   magma::Device<claws::no_delete> device,
 			   vk::Queue queue,
-			   uint32_t queueFamilyIndex)
+			   uint32_t queueFamilyIndex,
+			   T &&... userDataParams)
       : physicalDevice(physicalDevice)
       , surface(surface)
       , device(device)
       , queue(queue)
-      , userData(device, physicalDevice, queueFamilyIndex)
+      , userData(device, physicalDevice, queueFamilyIndex, std::forward<T>(userDataParams)...)
     {
       recreateSwapchain();
     }
@@ -81,6 +83,8 @@ namespace magma {
 
       for (uint32_t i(0u); i < swapchainImages.size(); ++i)
 	{
+	  static_assert(std::is_same_v<decltype((userData)), UserData &> && !std::is_const_v<UserData>);
+
 	  frames.emplace_back(device, swapchain, userData, swapchainUserData, swapchainImages[i]);
 	}
     }
