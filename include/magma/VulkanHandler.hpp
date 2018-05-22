@@ -55,7 +55,7 @@ namespace magma
     /// @return a `std::pair` of the select `vk::PhysicalDevice` and the corresponding biggest value returned by mapToScore.
     /// @throw Any exception thrown by `mapToScore`, or by vulkan-hpp through `enumeratePhysicalDevices`.
     template<class SCORE_MAPPER>
-    auto selectDevice(SCORE_MAPPER mapToScore)
+    auto selectDevice(SCORE_MAPPER mapToScore) const
     {
       auto physicalDevices(vkInstance.enumeratePhysicalDevices());
 
@@ -78,7 +78,7 @@ namespace magma
     }
 
     template<class DEVICE_FILTER, class COMPARE>
-    vk::PhysicalDevice selectDevice(DEVICE_FILTER deviceFilter, COMPARE compare)
+    vk::PhysicalDevice selectDevice(DEVICE_FILTER deviceFilter, COMPARE compare) const
     {
       auto physicalDevices(vkInstance.enumeratePhysicalDevices());
       auto end(std::remove_if(physicalDevices.begin(), physicalDevices.end(), [deviceFilter](auto &&a) { return !deviceFilter(a); }));
@@ -90,7 +90,7 @@ namespace magma
     }
 
     template<class FILTER, class COMPARE>
-    std::pair<vk::PhysicalDevice, unsigned int> selectQueue(FILTER filter, COMPARE compare)
+    std::pair<vk::PhysicalDevice, unsigned int> selectQueue(FILTER filter, COMPARE compare) const
     {
       auto physicalDevices(vkInstance.enumeratePhysicalDevices());
       std::vector<std::tuple<vk::QueueFamilyProperties, vk::PhysicalDevice, unsigned int>> queueList;
@@ -109,9 +109,6 @@ namespace magma
         throw std::runtime_error("vulkan : no suitable queue found");
       return {std::get<1>(*it), std::get<2>(*it)};
     }
-
-    Instance(Instance const &) = delete;
-    Instance(Instance &&) = delete;
 
     Instance(std::vector<char const *> &&extensions = {})
       : vkInstance([](std::vector<char const *> &&extensions) {
@@ -134,7 +131,7 @@ namespace magma
                                                   extensions.data());
 
         return vk::createInstance(instanceCreateInfo);
-      }(std::forward<std::vector<char const *>>(extensions)))
+	}(std::move(extensions)))
 #ifdef DEBUG_LAYERS
       , callback([](vk::Instance vkInstance) {
         vk::DebugReportCallbackCreateInfoEXT createInfo{vk::DebugReportFlagBitsEXT::eError | vk::DebugReportFlagBitsEXT::eWarning,
@@ -157,12 +154,25 @@ namespace magma
         throw std::runtime_error("vulkan : failed to create instance");
     }
 
+    Instance(Instance const &) = delete;
+    Instance(Instance &&other)
+      : vkInstance(other.vkInstance)
+#ifdef DEBUG_LAYERS
+      , callback(other.callback)
+#endif
+    {
+      other.vkInstance = nullptr;
+    }
+
     ~Instance()
     {
+      if (vkInstance)
+	{
 #ifdef DEBUG_LAYERS
-      vkInstance.destroyDebugReportCallbackEXT(callback);
+	  vkInstance.destroyDebugReportCallbackEXT(callback);
 #endif
-      vkInstance.destroy();
+	  vkInstance.destroy();
+	}
     }
   };
 };

@@ -191,19 +191,19 @@ namespace magma
         , device(device)
       {}
 
-      void reset(vk::CommandPoolResetFlags flags)
+      void reset(vk::CommandPoolResetFlags flags) const
       {
         device.resetCommandPool(*this, flags);
       }
 
-      auto allocatePrimaryCommandBuffers(uint32_t commandBufferCount)
+      auto allocatePrimaryCommandBuffers(uint32_t commandBufferCount) const
       {
         vk::CommandBufferAllocateInfo info{*this, vk::CommandBufferLevel::ePrimary, commandBufferCount};
 
         return CommandBufferGroup<PrimaryCommandBuffer>{{device, *this}, device.allocateCommandBuffers(info)};
       }
 
-      auto allocateSecondaryCommandBuffers(uint32_t commandBufferCount)
+      auto allocateSecondaryCommandBuffers(uint32_t commandBufferCount) const
       {
         vk::CommandBufferAllocateInfo info{*this, vk::CommandBufferLevel::eSecondary, commandBufferCount};
 
@@ -218,15 +218,23 @@ namespace magma
         swap(device, other.device);
       }
 
+      struct Deleter
+      {
+	void operator()(impl::CommandPool &&commandPool) const
+	{
+	  magma::Deleter{commandPool.device}(commandPool);
+	}
+      };
     };
 
     inline void swap(CommandPool &lh, CommandPool &rh)
     {
       lh.swap(rh);
     }
+
   }
 
-  template<class Deleter = Deleter>
+  template<class Deleter = impl::CommandPool::Deleter>
   using CommandPool = claws::handle<impl::CommandPool, Deleter>;
 
   inline auto impl::Device::createCommandPool(vk::CommandPoolCreateFlags flags, uint32_t queueFamilyIndex) const

@@ -1,34 +1,53 @@
 #pragma once
 
+#include <claws/handle_types.hpp>
+
 namespace magma
 {
-  class Surface
+  namespace impl
   {
-  public:
-    vk::Instance instance;
-    vk::SurfaceKHR vkSurface;
-
-    Surface()
-      : instance(nullptr)
-      , vkSurface(nullptr)
-    {}
-
-    Surface(Instance const &instance, vk::SurfaceKHR vkSurface)
-      : instance(instance.vkInstance)
-      , vkSurface(vkSurface)
-    {}
-
-    Surface(Surface const &) = delete;
-
-    ~Surface()
+    class Surface
     {
-      if (instance)
-        instance.destroySurfaceKHR(vkSurface);
-    }
+    public:
+      vk::SurfaceKHR vkSurface;
 
-    bool isQueueFamilySuitable(vk::PhysicalDevice physicalDevice, uint32_t queueIndex) const
+      Surface() = default;
+
+      Surface(vk::SurfaceKHR vkSurface) noexcept
+	: vkSurface(vkSurface)
+      {}
+
+      ~Surface() = default;
+
+      bool isQueueFamilySuitable(vk::PhysicalDevice physicalDevice, uint32_t queueIndex) const
+      {
+	return physicalDevice.getSurfaceSupportKHR(queueIndex, vkSurface);
+      }
+    };
+
+    class SurfaceDeleter
     {
-      return physicalDevice.getSurfaceSupportKHR(queueIndex, vkSurface);
-    }
-  };
+      vk::Instance instance;
+
+    public:
+      SurfaceDeleter(vk::Instance instance) noexcept
+	: instance(instance)
+      {
+      }
+
+      void operator()(Surface surface)
+      {
+	if (instance)
+	  instance.destroySurfaceKHR(surface.vkSurface);
+      }
+    };
+  }
+  
+  template<class Deleter = impl::SurfaceDeleter>
+  using Surface = claws::handle<impl::Surface, Deleter>;
+
+  Surface<> makeSurface(magma::Instance const &instance, vk::SurfaceKHR vkSurface)
+  {
+    return Surface<>{{instance.vkInstance}, vkSurface};
+  }
 }
