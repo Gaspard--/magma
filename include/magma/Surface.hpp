@@ -46,7 +46,7 @@ namespace magma
   template<class Deleter = impl::SurfaceDeleter>
   using Surface = claws::handle<impl::Surface, Deleter>;
 
-  Surface<> makeSurface(magma::Instance const &instance, vk::SurfaceKHR vkSurface)
+  inline Surface<> makeSurface(magma::Instance const &instance, vk::SurfaceKHR vkSurface)
   {
     return Surface<>{{instance.vkInstance}, vkSurface};
   }
