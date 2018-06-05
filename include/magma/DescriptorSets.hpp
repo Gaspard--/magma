@@ -71,6 +71,15 @@ namespace magma
         swap(device, other.device);
       }
 
+      struct Deleter
+      {
+	friend class DescriptorPool;
+
+	void operator()(DescriptorPool const &descriptorPool)
+	{
+	  magma::Deleter{descriptorPool.device}(descriptorPool);
+	}
+      };
     };
 
     inline void swap(DescriptorPool &lh, DescriptorPool &rh)
@@ -79,7 +88,7 @@ namespace magma
     }
   }
 
-  template<class Deleter = Deleter>
+  template<class Deleter = impl::DescriptorPool::Deleter>
   using DescriptorPool = claws::handle<impl::DescriptorPool, Deleter>;
 
   inline auto impl::Device::createDescriptorPool(std::uint32_t maxSets, std::vector<vk::DescriptorPoolSize> const &size) const
