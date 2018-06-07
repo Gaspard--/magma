@@ -215,9 +215,17 @@ namespace magma
     auto getMemory(RangeId index)
     {
       Range const &range(chunks[index.first].getRange(index.second));
-      auto deleter([ device = this->device, deviceMemory = DeviceMemory<claws::no_delete>(chunks[index.first].deviceMemory) ](auto data) {
+      auto deleter([ device = this->device, deviceMemory = DeviceMemory<claws::no_delete>(chunks[index.first].deviceMemory), range = range](auto data) {
         if (data)
-          device.unmapMemory(deviceMemory);
+	  {
+	    vk::MappedMemoryRange flushRange {
+	      deviceMemory,
+		range.begin,
+		range.end - range.begin
+	    };
+	    device.flushMappedMemoryRanges( {flushRange} );
+	    device.unmapMemory(deviceMemory);
+	  }
       });
       return std::unique_ptr<PtrType, decltype(deleter)>(reinterpret_cast<std::decay_t<PtrType>>(
                                                            device.mapMemory(chunks[index.first].deviceMemory, range.begin, range.end - range.begin)),
