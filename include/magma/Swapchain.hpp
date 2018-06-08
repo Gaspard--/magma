@@ -64,7 +64,8 @@ namespace magma
       Swapchain(Surface const &surface,
                 magma::Device<claws::no_delete> device,
                 vk::PhysicalDevice physicalDevice,
-                claws::handle<Swapchain, claws::no_delete> old)
+                claws::handle<Swapchain, claws::no_delete> old,
+		vk::Extent2D desiredSize = vk::Extent2D{0xFFFFFFFFu, 0xFFFFFFFFu})
         : device(device)
       {
         constexpr std::array<magma::FormatGroup, 3> preferedFormatRanking{
@@ -88,9 +89,9 @@ namespace magma
         if (!(capabilities.supportedUsageFlags & vk::ImageUsageFlagBits::eTransferDst))
           throw std::runtime_error("Vulkan Swapchain: Mising eTransferDst for clear operation.");
 
-        this->currentExtent =
-          (capabilities.currentExtent == vk::Extent2D{0xFFFFFFFFu, 0xFFFFFFFFu} ? capabilities.maxImageExtent
-                                                                                : capabilities.currentExtent); // choose current or biggest extent possible;
+	this->currentExtent = (desiredSize != vk::Extent2D{0xFFFFFFFFu, 0xFFFFFFFFu}) ? desiredSize : capabilities.currentExtent; // choose asked size, or default to current
+	this->currentExtent.width = std::min(this->currentExtent.width,  capabilities.maxImageExtent.width);
+	this->currentExtent.height = std::min(this->currentExtent.height,  capabilities.maxImageExtent.height);
 
         vk::SwapchainCreateInfoKHR createInfo({},
                                               surface.vkSurface,
