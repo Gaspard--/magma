@@ -14,6 +14,14 @@
 #include "magma/CreateInfo.hpp"
 
 namespace magma {
+  ///
+  /// A class that helps with swapchain-related data segmentation
+  ///
+  /// @tparam UserData will ba available on swapchain creation
+  /// @tparam SwachainUserData will be recreated everytime the swapchain gets recreated
+  /// @tparam FrameUserData will be (re)created for each swapchain image
+  ///
+  /// `UserData` must have a member `UserData::getExtent()` returning a value convertible to vk::Extent2D
   template<class UserData, class SwapchainUserData, class FrameUserData>
   class DisplaySystem
   {
@@ -73,7 +81,7 @@ namespace magma {
 
     void recreateSwapchain()
     {
-      swapchain = magma::Swapchain<>(surface, device, physicalDevice, swapchain);
+      swapchain = magma::Swapchain<>(surface, device, physicalDevice, swapchain, userData.getExtent());
       device.waitIdle();
       auto const &swapchainImages(swapchain.getImages());
       swapchainUserData = SwapchainUserData(device, swapchain, userData, static_cast<uint32_t>(swapchainImages.size()));
