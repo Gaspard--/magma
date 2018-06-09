@@ -59,6 +59,25 @@ namespace magma {
   private:
     std::vector<FrameData> frames;
 
+    template<class T, class = void>
+    struct CallExtentOrReturnDefault
+    {
+      vk::Extent2D operator()(T const &)
+      {
+	return vk::Extent2D{0xFFFFFFFF, 0xFFFFFFFF};
+      }
+    };
+
+    template<class T>
+    struct CallExtentOrReturnDefault<T, decltype(std::declval<T>().getExtent(), void(0))>
+    {
+      vk::Extent2D operator()(T const &t)
+      {
+	return t.getExtent();
+      }
+    };
+
+
   public:
     DisplaySystem(DisplaySystem const &) = delete;
     DisplaySystem(DisplaySystem &&) = delete;
@@ -81,7 +100,7 @@ namespace magma {
 
     void recreateSwapchain()
     {
-      swapchain = magma::Swapchain<>(surface, device, physicalDevice, swapchain, userData.getExtent());
+      swapchain = magma::Swapchain<>(surface, device, physicalDevice, swapchain, CallExtentOrReturnDefault<UserData>{}(userData));
       device.waitIdle();
       auto const &swapchainImages(swapchain.getImages());
       swapchainUserData = SwapchainUserData(device, swapchain, userData, static_cast<uint32_t>(swapchainImages.size()));
