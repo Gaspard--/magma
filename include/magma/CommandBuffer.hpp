@@ -60,6 +60,7 @@ namespace magma
     using vk::CommandBuffer::pipelineBarrier;
 
     using vk::CommandBuffer::bindVertexBuffers;
+    using vk::CommandBuffer::bindIndexBuffer;
 
     using vk::CommandBuffer::setEvent;
     using vk::CommandBuffer::resetEvent;
@@ -131,6 +132,11 @@ namespace magma
     void draw(uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance) const
     {
       commandBuffer.draw(vertexCount, instanceCount, firstVertex, firstInstance);
+    }
+
+    void drawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t vertexOffset, uint32_t firstIndex, uint32_t firstInstance) const
+    {
+      commandBuffer.drawIndexed(indexCount, instanceCount, vertexOffset, firstIndex, firstInstance);
     }
 
     void bindGraphicsPipeline(Pipeline<claws::no_delete> pipeline) const
