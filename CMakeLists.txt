@@ -81,5 +81,5 @@ if (NOT IDE_BUILD)
 
   install(FILES
     "${PROJECT_BINARY_DIR}/magma-config.cmake"
-    DESTINATION lib/cmake/magma)
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/magma)
 endif()
