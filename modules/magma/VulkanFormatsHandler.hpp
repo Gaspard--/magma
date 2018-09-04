@@ -3,7 +3,6 @@
 #include <type_traits>
 
 #include <claws/utils/array_ops.hpp>
-#include <claws/utils/iterator_util.hpp>
 
 #include "vulkan/vulkan.hpp"
 

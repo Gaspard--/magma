@@ -1,0 +1,8 @@
+@PACKAGE_INIT@
+
+MESSAGE(STATUS ${CMAKE_CURRENT_LIST_DIR})
+
+include("${CMAKE_CURRENT_LIST_DIR}/magma-core-targets.cmake")
+
+##! O Dependancies
+check_required_components("core")
