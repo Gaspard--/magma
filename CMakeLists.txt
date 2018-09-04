@@ -45,8 +45,8 @@ else ()
 endif ()
 
 target_link_libraries(magma INTERFACE
-        magma::render
-        claws::utils)
+  magma::core
+)
 
 if (NOT IDE_BUILD)
     include(GNUInstallDirs)
