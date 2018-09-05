@@ -2,7 +2,7 @@
 
 #include <type_traits>
 
-#include <claws/utils/array_ops.hpp>
+#include <claws/container/array_ops.hpp>
 
 #include "vulkan/vulkan.hpp"
 
