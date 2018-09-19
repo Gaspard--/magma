@@ -80,6 +80,41 @@ namespace magma
     }
   };
 
+  ///
+  /// \brief Constructs a CreateInfo struct using the given arguments
+  ///
+  /// If present, `stype` and `pnext` are auto-filled by vulkan-hpp, and should not be given
+  /// Lists are automaticly decomposed into a (size, pointer) pair
+  /// Supported list types are:
+  /// - std::array
+  /// - std::vector
+  /// - magma::SingleValListRef (should be created using asListRef)
+  /// - magma::EmptyList (passes (0, nullptr))
+  ///
+  template<class CreateInfo, class... T>
+  constexpr CreateInfo makeCreateInfo(T &&... args)
+  {
+    return StructBuilder<CreateInfo>::make(std::forward<T>(args)...);
+  }
+
+  ///
+  /// \brief Constructs a CreateInfo struct using the given arguments
+  ///
+  /// If present, `stype` and `pnext` are auto-filled by vulkan-hpp, and should not be given
+  /// `flags` is set to `{}` (aka 0 in the C API) contrary to `magma::makeCreateInfo`
+  /// Lists are automaticly decomposed into a (size, pointer) pair
+  /// Supported list types are:
+  /// - std::array
+  /// - std::vector
+  /// - magma::SingleValListRef (should be created using asListRef)
+  /// - magma::EmptyList (passes (0, nullptr))
+  ///
+  template<class CreateInfo, class... T>
+  constexpr CreateInfo makeCreateInfoNoFlags(T &&... args)
+  {
+    return StructBuilder<CreateInfo, true>::make(std::forward<T>(args)...);
+  }
+
   template<class T>
   constexpr auto asListRef(T const &val) noexcept
   {
